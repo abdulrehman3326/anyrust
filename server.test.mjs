@@ -14,6 +14,10 @@ test('invitation permissions, presenter approval, signaling and teardown', async
   assert.equal(page.status, 200);
   assert.match(page.headers.get('content-security-policy'), /frame-ancestors 'none'/);
   assert.match(await page.text(), /Share my screen/);
+  const health = await request('/api/health');
+  assert.equal(health.status, 200);
+  assert.equal(health.headers.get('cache-control'), 'no-store');
+  assert.deepEqual(await health.json(), {status: 'ready'});
   const forbidden = await request('/api/rooms', {method: 'POST', headers: {Origin: 'https://unrelated.example'}});
   assert.equal(forbidden.status, 403);
   const created = await request('/api/rooms', {method: 'POST'});

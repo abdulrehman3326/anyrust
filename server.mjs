@@ -53,6 +53,7 @@ export function createDeskServer() {
         res.writeHead(200, {'Content-Type': type, 'Cache-Control': 'no-store'});
         return res.end(await readFile(new URL(`./public/${name}`, import.meta.url)));
       }
+      if (req.method === 'GET' && url.pathname === '/api/health') return json(res, 200, {status: 'ready'});
       if (req.method === 'POST' && url.pathname === '/api/rooms') {
         if (rooms.size >= 32) return json(res, 429, {error: 'Room limit reached. Stop an existing session first.'});
         let id;

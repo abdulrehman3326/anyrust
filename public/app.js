@@ -3,6 +3,19 @@ let session = null, events = null, peer = null, stream = null;
 let role = 'host', timer = null, animation = null, started = null;
 let busy = false, ending = false, sample = false, pendingIce = [];
 let generation = 0, statsPrevious = null, lastSession = null;
+let phase = 'idle', serviceReady = false;
+const canCapture = Boolean(navigator.mediaDevices?.getDisplayMedia);
+const defaultHeading = $('page-title').innerHTML;
+const defaultDescription = $('page-description').textContent;
+let recentSessions = [];
+try {
+  const saved = JSON.parse(localStorage.getItem('deskstream-history') || '[]');
+  if (Array.isArray(saved)) recentSessions = saved.filter(item =>
+    item && typeof item.kind === 'string' && /^\d{9}$/.test(item.address) &&
+    typeof item.date === 'number' && Number.isFinite(item.date) &&
+    typeof item.seconds === 'number' && item.seconds >= 0
+  ).slice(0, 8);
+} catch { /* The workspace works when browser storage is disabled. */ }
 const presets = {
   balanced: {width: 1920, height: 1080, fps: 30, bitrate: 4_000_000},
   motion: {width: 1280, height: 720, fps: 60, bitrate: 5_000_000},
@@ -10,29 +23,77 @@ const presets = {
 };
 
 function toast(message) {
-  $('toast').textContent = message;
+  $('toast-text').textContent = message;
   $('toast').classList.add('visible');
   clearTimeout(toast.timeout);
-  toast.timeout = setTimeout(() => $('toast').classList.remove('visible'), 4200);
+  toast.timeout = setTimeout(() => $('toast').classList.remove('visible'), 5500);
 }
-function state(message, live = false) {
+function notice(message) {
+  $('notice-text').textContent = message;
+  $('notice').hidden = !message;
+}
+function invitationError(message = '') {
+  $('invite-error').textContent = message;
+  $('invite-error').hidden = !message;
+  $('invite-hint').hidden = Boolean(message);
+  $('invite').setAttribute('aria-invalid', String(Boolean(message)));
+}
+function resetStats() {
+  for (const name of ['resolution', 'fps', 'bitrate', 'latency']) $('stat-' + name).textContent = '—';
+  $('elapsed').textContent = '00:00';
+}
+function setViewerMode(enabled) {
+  document.body.classList.toggle('viewer-mode', enabled);
+  $('page-title').innerHTML = enabled ? 'A shared view starts here.' : defaultHeading;
+  $('page-description').textContent = enabled ? 'Your presenter will let you in. You’ll be able to view their selected screen.' : defaultDescription;
+  const descriptions = enabled
+    ? [['Invitation opened', 'Your invitation is ready.'], ['Await approval', 'Your presenter lets you in.'], ['View their screen', 'A live view, without remote control.']]
+    : [['Choose your source', 'A screen, window, or browser tab.'], ['Share your invitation', 'One link brings them here.'], ['Let them in', 'Approve your viewer to connect.']];
+  ['source', 'invite', 'connect'].forEach((name, index) => {
+    $('step-' + name).querySelector('strong').textContent = descriptions[index][0];
+    $('step-' + name).querySelector('p').textContent = descriptions[index][1];
+  });
+}
+function state(message, nextPhase = 'idle') {
+  phase = nextPhase;
+  const live = phase === 'live';
   $('state').textContent = message;
   $('connection-dot').classList.toggle('live', live);
   $('live-indicator').classList.toggle('live', live);
   $('session-badge').classList.toggle('live', live);
-  $('session-badge').textContent = live ? 'LIVE' : session ? 'CONNECTING' : 'STANDBY';
+  const badges = {idle: 'STANDBY', choosing: 'SELECT SOURCE', waiting: 'READY', request: 'REQUEST', connecting: 'CONNECTING', live: 'LIVE', interrupted: 'RECONNECTING', ended: 'ENDED'};
+  $('session-badge').textContent = badges[phase] || 'STANDBY';
+  $('session-panel').dataset.phase = phase;
+  const step = !session ? 0 : ['request', 'connecting', 'live', 'interrupted'].includes(phase) ? 2 : 1;
+  ['source', 'invite', 'connect'].forEach((name, index) => {
+    const element = $('step-' + name);
+    element.classList.toggle('active', index === step && !live);
+    element.classList.toggle('complete', index < step || live);
+    element.querySelector('.step-marker').textContent = index < step || live ? '✓' : String(index + 1);
+  });
+  const viewerWaiting = role === 'viewer' && session;
+  $('empty-title').textContent = viewerWaiting ? (phase === 'connecting' ? 'Bringing you together…' : 'Your presenter has the next move.') : 'A shared view. A fresh perspective.';
+  $('empty-description').textContent = viewerWaiting ? 'Keep this tab open. The selected source appears here after the presenter approves your request.' : 'Your screen appears here when you start sharing. Choose a window, a tab, or the whole picture.';
+  $('empty-caption').textContent = viewerWaiting ? (phase === 'connecting' ? 'Establishing your connection' : 'Waiting for presenter approval') : 'Nothing is being shared';
+  controls();
 }
 function controls() {
   const active = Boolean(session);
-  $('share').disabled = busy || active;
-  $('demo').disabled = busy || active;
-  $('connect').disabled = busy || active;
+  $('share').disabled = busy || ending || active || !canCapture || !serviceReady;
+  $('demo').disabled = busy || ending || active || !serviceReady;
+  $('connect').disabled = busy || ending || active || !serviceReady;
   $('invite').disabled = active;
-  $('copy').disabled = !active || role !== 'host';
-  $('open-viewer').disabled = !active || role !== 'host';
-  $('stop').disabled = !active;
+  $('copy').disabled = ending || !active || role !== 'host';
+  $('open-viewer').disabled = ending || !active || role !== 'host';
+  $('stop').disabled = ending || !active;
   $('fullscreen').disabled = !stream;
   $('quality').disabled = active && role === 'viewer';
+  $('share').setAttribute('aria-busy', String(busy));
+  $('share-label').textContent = ending ? 'Ending session…' : busy ? (phase === 'choosing' ? 'Choose a source in your browser…' : 'Preparing your session…') : active && role === 'host' ? (sample ? 'Sample stream is ready' : 'Your source is selected') : canCapture ? 'Share my screen' : 'Present from a desktop browser';
+  $('invitation-panel').hidden = !active || role !== 'host';
+  $('address-badge').classList.toggle('active', active && role === 'host');
+  $('address-badge').textContent = active && role === 'host' ? 'PRIVATE LINK' : 'NOT SHARING';
+  $('address').classList.toggle('active-address', active && role === 'host');
 }
 function showStream(value, label) {
   stream = value;
@@ -41,11 +102,17 @@ function showStream(value, label) {
   $('empty').hidden = true;
   $('source-label').hidden = false;
   $('source-label').textContent = label;
-  $('screen').play().catch(() => toast('Press play in your browser to view the stream.'));
+  $('screen').play().catch(() => {
+    $('screen').controls = true;
+    notice('Automatic playback was paused by your browser. Press play on the stream to continue.');
+  });
   controls();
 }
 async function request(path, options = {}) {
-  const response = await fetch(path, options);
+  let response;
+  try { response = await fetch(path, {signal: AbortSignal.timeout(12_000), ...options}); }
+  catch { throw new Error('Couldn’t reach the service. Check your connection and try again.'); }
+  if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('The service may be starting up. Wait a moment, then try again.');
   const result = await response.json();
   if (!response.ok) throw new Error(result.error || 'The request failed');
   return result;
@@ -73,7 +140,7 @@ function listen() {
   };
   events.onerror = () => {
     if (currentGeneration !== generation || ending) return;
-    toast('The signaling connection closed. Start a new session to reconnect.');
+    notice('This session is unavailable or the connection closed. Ask the presenter for a fresh invitation, or start a new session.');
     endSession();
   };
 }
@@ -90,6 +157,7 @@ function closePeer() {
   timer = null;
   clearTimeout(state.disconnectTimer);
   statsPrevious = null;
+  resetStats();
 }
 function makePeer() {
   closePeer();
@@ -111,14 +179,14 @@ function makePeer() {
     if (pc.connectionState === 'connected') {
       clearTimeout(state.disconnectTimer);
       started ||= Date.now();
-      state(role === 'host' ? 'Connected · Sharing screen' : 'Connected · Viewing screen', true);
+      state(role === 'host' ? 'Connected · Sharing screen' : 'Connected · Viewing screen', 'live');
       $('session-title').textContent = role === 'host' ? 'Your screen is shared' : 'Remote screen';
       timer ||= setInterval(updateStats, 1000);
     } else if (pc.connectionState === 'failed') {
-      toast('The peer connection failed. This prototype has no TURN relay; try two local tabs.');
+      notice('We couldn’t establish a video connection. Try again on the same network. Connections between some networks require a TURN relay on the server.');
       endSession();
     } else if (pc.connectionState === 'disconnected') {
-      state('Connection interrupted');
+      state('Connection interrupted', 'interrupted');
       state.disconnectTimer = setTimeout(() => {
         if (pc === peer && pc.connectionState === 'disconnected') { toast('The viewer disconnected.'); endSession(); }
       }, 10_000);
@@ -142,10 +210,10 @@ async function onSignal(type, data) {
   if (type === 'ready') return;
   if (type === 'viewer-request' && role === 'host') {
     if (!$('approval').open) $('approval').showModal();
-    state('Viewer requesting access');
+    state('Viewer requesting access', 'request');
   } else if (type === 'approved') {
     makePeer();
-    state('Accepted · Establishing connection');
+    state('Accepted · Establishing connection', 'connecting');
   } else if (type === 'offer' && role === 'viewer') {
     if (!peer) throw new Error('The presenter must approve this session first');
     await peer.setRemoteDescription(data);
@@ -164,7 +232,7 @@ async function onSignal(type, data) {
     if ($('approval').open) $('approval').close();
     if (role === 'host') {
       closePeer();
-      state('Viewer left · Waiting for a viewer');
+      state('Viewer left · Waiting for a viewer', 'waiting');
       $('session-title').textContent = 'Screen ready to share';
       $('metrics').textContent = 'Invitation is still active';
     } else { toast('The presenter disconnected.'); await endSession(false); }
@@ -182,7 +250,7 @@ async function approveViewer() {
     await pc.setLocalDescription(await pc.createOffer());
     await signal('offer', pc.localDescription.toJSON());
     await applyQuality();
-    state('Connecting to viewer');
+    if (pc === peer && pc.connectionState !== 'connected') state('Connecting to viewer', 'connecting');
   } catch (error) { toast(error.message); await endSession(); }
 }
 function createSample() {
@@ -212,14 +280,18 @@ function createSample() {
   return canvas.captureStream(30);
 }
 async function share(useSample) {
-  if (busy || session) return;
-  busy = true; sample = useSample; controls();
+  if (busy || ending || session) return;
+  busy = true; sample = useSample;
+  notice(''); invitationError();
+  state(useSample ? 'Preparing a sample stream' : 'Choose a source in your browser', 'choosing');
   let acquired;
   try {
     if (!useSample && !navigator.mediaDevices?.getDisplayMedia) throw new Error('Screen sharing needs a desktop browser on localhost or HTTPS.');
     const preset = presets[$('quality').value];
     acquired = useSample ? createSample() : await navigator.mediaDevices.getDisplayMedia({video: {width: {ideal: preset.width}, height: {ideal: preset.height}, frameRate: {ideal: preset.fps}}, audio: false});
+    phase = 'connecting'; controls();
     role = 'host';
+    setViewerMode(false);
     session = await request('/api/rooms', {method: 'POST'});
     session.token = session.hostToken;
     generation++;
@@ -228,16 +300,18 @@ async function share(useSample) {
     showStream(acquired, useSample ? 'Sample stream · Animated illustration' : 'Your screen · Local preview');
     acquired.getVideoTracks()[0].addEventListener('ended', () => endSession());
     $('address').textContent = session.id.match(/.{3}/g).join(' ');
+    $('share-link').value = inviteUrl();
     $('share-note').textContent = 'Copy the invitation to let someone request access.';
     $('session-title').textContent = 'Screen ready to share';
     $('metrics').textContent = useSample ? 'Sample source · 1280 × 720' : 'Source selected';
-    state('Waiting for a viewer');
+    state('Waiting for a viewer', 'waiting');
     listen();
     toast(useSample ? 'Sample stream ready. Open the viewer to test the connection.' : 'Screen selected. Copy your invitation to invite a viewer.');
   } catch (error) {
     acquired?.getTracks().forEach(track => track.stop());
     cancelAnimationFrame(animation);
     if (session) await endSession();
+    else state('No active session');
     toast(error.name === 'NotAllowedError' ? 'Screen sharing was cancelled. You can try again.' : error.message);
   } finally { busy = false; controls(); }
 }
@@ -256,24 +330,29 @@ function parseInvitation(value) {
   return {id: match[1], token: match[2]};
 }
 async function connect(value) {
-  if (busy || session) return;
+  if (busy || ending || session) return;
   try {
+    invitationError();
+    if (!value) throw new Error('Paste your presenter’s invitation link to join a session.');
     const selected = parseInvitation(value);
     if (!window.RTCPeerConnection) throw new Error('This browser does not support WebRTC.');
     generation++;
     role = 'viewer'; session = selected; started = null;
+    notice(''); setViewerMode(true);
     lastSession = {address: selected.id, kind: 'Viewed screen'};
     $('session-title').textContent = 'Waiting for presenter approval';
     $('share-note').textContent = 'You are viewing another desk.';
     $('metrics').textContent = 'Request sent';
     $('invite').value = value;
     history.replaceState(null, '', '/');
-    controls(); state('Waiting for approval'); listen();
-  } catch (error) { toast(error.message); }
+    controls(); state('Waiting for approval', 'waiting'); listen();
+    $('session-panel').scrollIntoView({behavior: 'smooth', block: 'center'});
+  } catch (error) { invitationError(error.message); $('invite').focus(); }
 }
 async function endSession(notify = true) {
   if (ending || (!session && !stream)) return;
   ending = true;
+  controls();
   const selected = session;
   const wasHost = role === 'host';
   generation++;
@@ -286,18 +365,19 @@ async function endSession(notify = true) {
   $('screen').srcObject = null; $('screen').hidden = true;
   $('empty').hidden = false; $('source-label').hidden = true;
   $('address').textContent = 'Ready when you are';
-  $('share-note').textContent = 'You choose what to share. You stay in control.';
-  $('session-title').textContent = 'Your shared workspace';
+  $('share-link').value = '';
+  $('share-note').textContent = 'A private invitation is created when you choose a source.';
+  $('session-title').textContent = 'Screen preview';
+  $('screen').controls = false;
+  $('invite').value = '';
+  setViewerMode(false);
   $('metrics').textContent = 'Ready to connect';
-  state('Session ended');
+  state('Session ended', 'ended');
   if (lastSession) {
-    const duration = started ? `${Math.max(1, Math.round((Date.now() - started) / 1000))} seconds` : 'No live connection';
-    $('history-list').replaceChildren();
-    const icon = document.createElement('span'); icon.className = 'history-icon'; icon.textContent = '▣';
-    const container = document.createElement('div');
-    const title = document.createElement('strong'); title.textContent = `${lastSession.kind} · ${lastSession.address.match(/.{3}/g).join(' ')}`;
-    const description = document.createElement('p'); description.textContent = `${duration} · Ended at ${new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`;
-    container.append(title, description); $('history-list').append(icon, container);
+    recentSessions.unshift({...lastSession, date: Date.now(), seconds: started ? Math.max(1, Math.round((Date.now() - started) / 1000)) : 0});
+    recentSessions = recentSessions.slice(0, 8);
+    try { localStorage.setItem('deskstream-history', JSON.stringify(recentSessions)); } catch { /* Keep the in-memory history when storage is unavailable. */ }
+    renderHistory();
     lastSession = null;
   }
   controls();
@@ -307,7 +387,21 @@ async function endSession(notify = true) {
       else await signal('leave', undefined, selected);
     }
   } catch { toast('The connection is closed. The server session may already have expired.'); }
-  finally { ending = false; }
+  finally { ending = false; controls(); }
+}
+function renderHistory() {
+  if (!recentSessions.length) return;
+  $('history-list').replaceChildren();
+  for (const item of recentSessions) {
+    const row = document.createElement('div'); row.className = 'history-row';
+    const icon = document.createElement('span'); icon.className = 'feature-icon lavender';
+    icon.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#i-screen"/></svg>';
+    const description = document.createElement('div');
+    const title = document.createElement('strong'); title.textContent = `${item.kind} · ${item.address.match(/.{3}/g).join(' ')}`;
+    const date = document.createElement('p'); date.textContent = new Date(item.date).toLocaleString([], {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'});
+    const duration = document.createElement('span'); duration.className = 'history-duration'; duration.textContent = item.seconds ? `${Math.floor(item.seconds / 60)}m ${item.seconds % 60}s connected` : 'Not connected';
+    description.append(title, date); row.append(icon, description, duration); $('history-list').append(row);
+  }
 }
 async function updateStats() {
   const pc = peer;
@@ -315,6 +409,8 @@ async function updateStats() {
   try {
     const reports = await pc.getStats();
     if (pc !== peer) return;
+    const seconds = Math.floor((Date.now() - started) / 1000);
+    $('elapsed').textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
     let rtp, rtt;
     reports.forEach(report => {
       if (report.type === (role === 'host' ? 'outbound-rtp' : 'inbound-rtp') && report.kind === 'video') rtp = report;
@@ -328,24 +424,77 @@ async function updateStats() {
     const resolution = rtp.frameWidth ? `${rtp.frameWidth} × ${rtp.frameHeight}` : 'Video';
     const fps = rtp.framesPerSecond == null ? '' : ` · ${Math.round(rtp.framesPerSecond)} fps`;
     $('metrics').textContent = `${resolution}${fps} · ${bitrate.toFixed(1)} Mbps${rtt == null ? '' : ` · ${Math.round(rtt * 1000)} ms`}`;
+    $('stat-resolution').textContent = rtp.frameWidth ? `${rtp.frameWidth} × ${rtp.frameHeight}` : '—';
+    $('stat-fps').textContent = rtp.framesPerSecond == null ? '—' : `${Math.round(rtp.framesPerSecond)} fps`;
+    $('stat-bitrate').textContent = `${bitrate.toFixed(1)} Mbps`;
+    $('stat-latency').textContent = rtt == null ? '—' : `${Math.round(rtt * 1000)} ms`;
   } catch { /* A closed peer no longer has statistics. */ }
 }
 $('share').onclick = () => share(false);
 $('demo').onclick = () => share(true);
 $('stop').onclick = () => endSession();
-$('connect').onclick = () => connect($('invite').value.trim());
-$('invite').onkeydown = event => { if (event.key === 'Enter') connect($('invite').value.trim()); };
-$('copy').onclick = async () => { try { await navigator.clipboard.writeText(inviteUrl()); toast('Invitation copied. The viewer will need your approval.'); } catch { toast('Clipboard unavailable. Use Open viewer to test locally.'); } };
+$('join-form').onsubmit = event => { event.preventDefault(); connect($('invite').value.trim()); };
+$('invite').oninput = () => invitationError();
+$('share-link').onclick = () => $('share-link').select();
+$('copy').onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(inviteUrl());
+    $('copy-label').textContent = 'Copied!';
+    toast('Invitation copied. Send it to the person you want to let in.');
+    setTimeout(() => { $('copy-label').textContent = 'Copy link'; }, 2500);
+  } catch {
+    $('share-link').focus(); $('share-link').select();
+    toast('Select and copy the invitation above with Ctrl+C or ⌘C.');
+  }
+};
 $('open-viewer').onclick = () => window.open(inviteUrl(), '_blank', 'noopener');
 $('approve').onclick = approveViewer;
-$('reject').onclick = async () => { $('approval').close(); try { await signal('reject'); state('Waiting for a viewer'); } catch (error) { toast(error.message); } };
+$('reject').onclick = async () => { $('approval').close(); try { await signal('reject'); state('Waiting for a viewer', 'waiting'); } catch (error) { toast(error.message); } };
 $('approval').addEventListener('cancel', event => { event.preventDefault(); $('reject').click(); });
 $('quality').onchange = () => applyQuality().catch(error => toast(`Quality could not be changed: ${error.message}`));
-$('fullscreen').onclick = () => $('stage').requestFullscreen().catch(error => toast(error.message));
-$('help').onclick = () => $('help-dialog').showModal();
+$('fullscreen').onclick = async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else if ($('stage').requestFullscreen) await $('stage').requestFullscreen();
+    else toast('Fullscreen is unavailable in this browser.');
+  } catch (error) { toast(error.message); }
+};
+document.addEventListener('fullscreenchange', () => {
+  const label = document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen';
+  $('fullscreen').setAttribute('aria-label', label); $('fullscreen').title = label;
+});
+for (const id of ['help', 'nav-help', 'footer-help']) $(id).onclick = () => $('help-dialog').showModal();
 $('close-help').onclick = () => $('help-dialog').close();
-$('home').onclick = () => window.scrollTo({top: 0, behavior: 'smooth'});
-$('recent').onclick = () => $('history-list').scrollIntoView({behavior: 'smooth', block: 'center'});
+$('dismiss-notice').onclick = () => notice('');
+for (const id of ['home', 'recent']) $(id).onclick = () => {
+  for (const name of ['home', 'recent']) {
+    $(name).classList.toggle('selected', id === name);
+    if (id === name) $(name).setAttribute('aria-current', 'location');
+    else $(name).removeAttribute('aria-current');
+  }
+  if (id === 'home') window.scrollTo({top: 0, behavior: 'smooth'});
+  else $('history-section').scrollIntoView({behavior: 'smooth', block: 'center'});
+};
+async function checkService() {
+  try {
+    await request('/api/health');
+    serviceReady = true;
+    $('service-status').dataset.status = 'ready';
+    $('service-label').textContent = 'Service connected';
+  } catch {
+    serviceReady = false;
+    $('service-status').dataset.status = 'offline';
+    $('service-label').textContent = 'Service unavailable';
+    notice('The service is unavailable or waking up. Check your connection, then refresh this page to try again.');
+  }
+  controls();
+}
+window.addEventListener('online', checkService);
+window.addEventListener('offline', () => {
+  serviceReady = false;
+  $('service-status').dataset.status = 'offline'; $('service-label').textContent = 'You’re offline';
+  notice('You’re offline. Reconnect to start a session.'); controls();
+});
 window.addEventListener('pagehide', () => {
   stream?.getTracks().forEach(track => track.stop());
   if (!session) return;
@@ -353,4 +502,7 @@ window.addEventListener('pagehide', () => {
   else fetch(`/api/rooms/${session.id}/signal`, {method: 'POST', keepalive: true, headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: session.token, type: 'leave'})}).catch(() => {});
 });
 controls();
+renderHistory();
+checkService();
+if (!canCapture) notice('This browser can view streams. To present your screen, open Deskstream in a supported desktop browser on HTTPS or localhost.');
 if (location.hash.startsWith('#join=')) connect(location.href);
