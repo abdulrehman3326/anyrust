@@ -30,6 +30,9 @@ test('invitation permissions, presenter approval, signaling and teardown', async
   assert.equal((await send(id, 'wrong', 'ice', {})).status, 403);
   assert.equal((await send(id, viewerToken, 'offer', {type: 'offer', sdp: 'not-approved'})).status, 403);
   assert.equal((await send(id, hostToken, 'offer', {type: 'offer', sdp: 'not-approved'})).status, 403);
+  assert.equal((await send(id, hostToken, 'chat', {text: 'Before approval'})).status, 403);
+  assert.equal((await send(id, viewerToken, 'chat', {text: 'Before approval'})).status, 403);
+  assert.equal((await send(id, 'wrong', 'chat', {text: 'Unauthorized'})).status, 403);
   assert.equal((await request(`/api/rooms/${id}?token=${viewerToken}`, {method: 'DELETE'})).status, 405);
   async function eventStream(token) {
     const response = await request(`/api/rooms/${id}/events?token=${token}`, {signal: abort.signal});
@@ -67,7 +70,29 @@ test('invitation permissions, presenter approval, signaling and teardown', async
   const answer = {type: 'answer', sdp: 'test-answer'};
   assert.equal((await send(id, viewerToken, 'answer', answer)).status, 200);
   assert.deepEqual(await host(), {type: 'answer', data: answer});
+  for (const invalid of [null, {}, {text: 4}, {text: ' \n '}, {text: 'x'.repeat(2001)}]) {
+    assert.equal((await send(id, hostToken, 'chat', invalid)).status, 400);
+  }
+  for (const [token, role, text] of [[hostToken, 'host', '<img src=x onerror=alert(1)>\nHello 👋'], [viewerToken, 'viewer', 'x'.repeat(2000)]]) {
+    const before = Date.now();
+    assert.equal((await send(id, token, 'chat', {text, role: 'spoofed', timestamp: 0})).status, 200);
+    const received = await host();
+    assert.deepEqual(await viewer(), received);
+    assert.equal(received.type, 'chat');
+    assert.equal(received.data.text, text);
+    assert.equal(received.data.role, role);
+    assert.ok(received.data.timestamp >= before && received.data.timestamp <= Date.now());
+  }
+  assert.equal((await send(id, viewerToken, 'leave')).status, 200);
+  assert.equal((await host()).type, 'peer-left');
+  assert.equal((await send(id, hostToken, 'chat', {text: 'After viewer leaves'})).status, 403);
+  const replacementViewer = await eventStream(viewerToken);
+  assert.equal((await replacementViewer()).type, 'ready');
+  assert.equal((await host()).type, 'peer-left');
+  assert.equal((await host()).type, 'viewer-request');
+  assert.equal((await send(id, viewerToken, 'chat', {text: 'Approval does not carry over'})).status, 403);
   assert.equal((await request(`/api/rooms/${id}?token=${hostToken}`, {method: 'DELETE'})).status, 200);
-  assert.equal((await viewer()).type, 'ended');
+  assert.equal((await replacementViewer()).type, 'ended');
   assert.equal((await send(id, viewerToken, 'ice', {})).status, 404);
+  assert.equal((await send(id, hostToken, 'chat', {text: 'After session ends'})).status, 404);
 });

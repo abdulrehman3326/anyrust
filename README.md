@@ -17,6 +17,10 @@ Open http://127.0.0.1:4317 in a desktop browser. No npm installation is needed.
 
 **Try a sample stream** generates an animated canvas source for testing. It is clearly labeled and still travels through a real WebRTC peer connection. It never captures the desktop.
 
+After approval, presenter and viewer can use **Session chat** below the video. Enter sends a message; Shift+Enter adds a new line. Fullscreen keeps the session controls visible and moves chat into a collapsible tray on the right, initially collapsed. The tray shows an unread count for incoming messages while closed. Exit fullscreen restores chat below the video.
+
+Chat uses the authenticated HTTP/SSE session channel through the server. Messages are limited to 2,000 characters, displayed as plain text, and are not saved to disk or browser storage. Each tab retains only its latest 100 messages; leaving or ending a session clears the transcript for both participants. A replacement viewer must be approved again and receives no previous transcript.
+
 ## Implementation and scope
 
 The UI includes session setup, invitation copying, approval, local preview, remote playback, quality presets, full screen, live WebRTC statistics and in-memory session history. There is no remote input/control or unattended access. Audio capture is outside this prototype's scope.
@@ -42,7 +46,9 @@ The native accessibility observation exposed a **New Session** tab. Window scree
 npm test
 ```
 
-The integration test exercises real HTTP/SSE behavior: invitation permissions, presenter approval, role restrictions, signaling delivery, duplicate-viewer rejection, reverse-proxy origin handling and teardown.
+The integration test exercises real HTTP/SSE behavior: invitation permissions, presenter approval, role restrictions, signaling delivery, duplicate-viewer rejection, reverse-proxy origin handling and teardown. Chat coverage includes approval requirements, both senders, invalid/oversized messages, server-owned sender identities and timestamps, replacement-viewer approval and rejection after teardown.
+
+Chat browser validation used two local tabs with a generated sample stream: messages arrived in both directions, HTML-like content remained plain text, fullscreen chat collapsed to the right and showed an unread badge, expanding it revealed the messages, and exiting fullscreen placed chat below the video. Leaving as the viewer cleared both transcripts and disabled sending. Chat between different computers has not been verified.
 
 Browser validation: the presenter generated a canvas sample, opened a separate viewer tab and explicitly approved it. The viewer reached **Connected · Viewing screen**, with decoded video reported at 320 × 180, 30 fps, approximately 0.2 Mbps and 1 ms round-trip time during the observation. This is one local sample, not a performance guarantee. Ending the presenter session returned the viewer to standby and recorded its session duration. The rendered mobile-width page was visually inspected. A real desktop capture, another physical computer and Internet traversal were not tested.
 

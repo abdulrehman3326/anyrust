@@ -4,6 +4,78 @@ let role = 'host', timer = null, animation = null, started = null;
 let busy = false, ending = false, sample = false, pendingIce = [];
 let generation = 0, statsPrevious = null, lastSession = null;
 let phase = 'idle', serviceReady = false;
+let chatReady = false, chatSending = false, chatUnread = 0;
+
+function chatControls() {
+  const enabled = chatReady && session && !ending && serviceReady;
+  $('chat-input').disabled = !enabled || chatSending;
+  $('chat-send').disabled = !enabled || chatSending || !$('chat-input').value.trim();
+  $('chat-status').textContent = chatReady ? 'Presenter + viewer · Messages clear when either person leaves' : 'Chat opens after the presenter approves a viewer.';
+}
+function toggleChat(open) {
+  $('chat-toggle').setAttribute('aria-expanded', String(open));
+  $('chat-content').hidden = !open;
+  $('session-panel').classList.toggle('chat-collapsed', !open);
+  $('chat-chevron').textContent = open ? '−' : '+';
+  if (open) {
+    chatUnread = 0;
+    $('chat-unread').hidden = true;
+    $('chat-messages').scrollTop = $('chat-messages').scrollHeight;
+  }
+}
+function resetChat() {
+  chatReady = false; chatSending = false; chatUnread = 0;
+  $('chat-messages').replaceChildren($('chat-empty'));
+  $('chat-empty').hidden = false;
+  $('chat-input').value = '';
+  $('chat-error').hidden = true;
+  $('chat-unread').hidden = true;
+  chatControls();
+}
+function receiveChat(message) {
+  const log = $('chat-messages');
+  const nearBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 60;
+  $('chat-empty').hidden = true;
+  const row = document.createElement('article');
+  row.className = 'chat-message' + (message.role === role ? ' own' : '');
+  const meta = document.createElement('div'); meta.className = 'chat-meta';
+  const sender = document.createElement('strong');
+  sender.textContent = message.role === role ? 'You' : message.role === 'host' ? 'Presenter' : 'Viewer';
+  const time = document.createElement('time');
+  time.dateTime = new Date(message.timestamp).toISOString();
+  time.textContent = new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+  const text = document.createElement('p'); text.textContent = message.text;
+  meta.append(sender, time); row.append(meta, text); log.append(row);
+  // Keep a bounded live transcript; no messages are saved to browser storage.
+  while (log.querySelectorAll('article').length > 100) log.querySelector('article').remove();
+  if (nearBottom || message.role === role) log.scrollTop = log.scrollHeight;
+  if ($('chat-content').hidden && message.role !== role) {
+    $('chat-unread').textContent = String(++chatUnread);
+    $('chat-unread').hidden = false;
+  }
+}
+async function sendChat(event) {
+  event.preventDefault();
+  if (!chatReady || chatSending || !session || ending || !serviceReady) return;
+  const text = $('chat-input').value;
+  if (!text.trim()) return;
+  const selectedGeneration = generation;
+  chatSending = true; $('chat-error').hidden = true; chatControls();
+  try {
+    await signal('chat', {text});
+    if (selectedGeneration === generation) $('chat-input').value = '';
+  } catch (error) {
+    if (selectedGeneration === generation) {
+      $('chat-error').textContent = error.message + ' Your draft is still here.';
+      $('chat-error').hidden = false;
+    }
+  } finally {
+    if (selectedGeneration === generation) {
+      chatSending = false; chatControls();
+      if (!$('chat-content').hidden && !$('chat-input').disabled) $('chat-input').focus();
+    }
+  }
+}
 const canCapture = Boolean(navigator.mediaDevices?.getDisplayMedia);
 const defaultHeading = $('page-title').innerHTML;
 const defaultDescription = $('page-description').textContent;
@@ -78,6 +150,7 @@ function state(message, nextPhase = 'idle') {
   controls();
 }
 function controls() {
+  chatControls();
   const active = Boolean(session);
   $('share').disabled = busy || ending || active || !canCapture || !serviceReady;
   $('demo').disabled = busy || ending || active || !serviceReady;
@@ -212,6 +285,7 @@ async function onSignal(type, data) {
     if (!$('approval').open) $('approval').showModal();
     state('Viewer requesting access', 'request');
   } else if (type === 'approved') {
+    chatReady = true; chatControls();
     makePeer();
     state('Accepted · Establishing connection', 'connecting');
   } else if (type === 'offer' && role === 'viewer') {
@@ -228,7 +302,10 @@ async function onSignal(type, data) {
   } else if (type === 'ice') {
     if (peer?.remoteDescription) await peer.addIceCandidate(data);
     else pendingIce.push(data);
+  } else if (type === 'chat') {
+    receiveChat(data);
   } else if (type === 'peer-left') {
+    resetChat();
     if ($('approval').open) $('approval').close();
     if (role === 'host') {
       closePeer();
@@ -245,6 +322,7 @@ async function approveViewer() {
   $('approval').close();
   try {
     await signal('approve');
+    chatReady = true; chatControls();
     const pc = makePeer();
     for (const track of stream.getTracks()) pc.addTrack(track, stream);
     await pc.setLocalDescription(await pc.createOffer());
@@ -361,6 +439,8 @@ async function endSession(notify = true) {
   cancelAnimationFrame(animation); animation = null;
   stream?.getTracks().forEach(track => track.stop()); stream = null;
   session = null;
+  resetChat();
+  if (document.fullscreenElement === $('session-panel')) document.exitFullscreen().catch(() => {});
   if ($('approval').open) $('approval').close();
   $('screen').srcObject = null; $('screen').hidden = true;
   $('empty').hidden = false; $('source-label').hidden = true;
@@ -455,14 +535,24 @@ $('quality').onchange = () => applyQuality().catch(error => toast(`Quality could
 $('fullscreen').onclick = async () => {
   try {
     if (document.fullscreenElement) await document.exitFullscreen();
-    else if ($('stage').requestFullscreen) await $('stage').requestFullscreen();
+    else if ($('session-panel').requestFullscreen) await $('session-panel').requestFullscreen();
     else toast('Fullscreen is unavailable in this browser.');
   } catch (error) { toast(error.message); }
 };
 document.addEventListener('fullscreenchange', () => {
   const label = document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen';
   $('fullscreen').setAttribute('aria-label', label); $('fullscreen').title = label;
+  toggleChat(!document.fullscreenElement);
 });
+$('chat-toggle').onclick = () => toggleChat($('chat-content').hidden);
+$('chat-form').onsubmit = sendChat;
+$('chat-input').oninput = chatControls;
+$('chat-input').onkeydown = event => {
+  if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+    event.preventDefault();
+    $('chat-form').requestSubmit();
+  }
+};
 for (const id of ['help', 'nav-help', 'footer-help']) $(id).onclick = () => $('help-dialog').showModal();
 $('close-help').onclick = () => $('help-dialog').close();
 $('dismiss-notice').onclick = () => notice('');

@@ -106,6 +106,13 @@ export function createDeskServer() {
         room.approved = false;
         emit(room, 'host', 'peer-left');
         room.viewer?.end();
+      } else if (type === 'chat' && room.approved && room.host && room.viewer) {
+        if (!data || typeof data.text !== 'string' || !data.text.trim() || data.text.length > 2000) {
+          return json(res, 400, {error: 'Messages must contain 1–2000 characters'});
+        }
+        const message = {text: data.text, role, timestamp: Date.now()};
+        emit(room, 'host', 'chat', message);
+        emit(room, 'viewer', 'chat', message);
       } else if (room.approved && ((role === 'host' && type === 'offer') || (role === 'viewer' && type === 'answer') || type === 'ice')) {
         if (!data || typeof data !== 'object') return json(res, 400, {error: 'Invalid signaling data'});
         emit(room, role === 'host' ? 'viewer' : 'host', type, data);
