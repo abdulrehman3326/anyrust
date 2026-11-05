@@ -8,6 +8,8 @@ const publicFiles = new Map([
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
 ]);
+// Client-side routes: each is answered with the app shell so clean URLs survive a reload.
+for (const view of ['share', 'join', 'session', 'history', 'help']) publicFiles.set(`/${view}`, publicFiles.get('/'));
 const secret = () => randomBytes(24).toString('base64url');
 function equal(a, b) {
   return typeof a === 'string' && a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
@@ -41,7 +43,7 @@ export function createDeskServer() {
   const server = http.createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'");
     try {
       const url = new URL(req.url, `http://${req.headers.host}`);
       if (req.headers.origin) {

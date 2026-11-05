@@ -21,6 +21,20 @@ After approval, presenter and viewer can use **Session chat** below the video. E
 
 Chat uses the authenticated HTTP/SSE session channel through the server. Messages are limited to 2,000 characters, displayed as plain text, and are not saved to disk or browser storage. Each tab retains only its latest 100 messages; leaving or ending a session clears the transcript for both participants. A replacement viewer must be approved again and receives no previous transcript.
 
+## Frontend development
+
+The UI is a React + TypeScript (strict) app in [`web/`](web/), organized feature-first (`web/src/features/*` for session, present, join, approval, chat, history, help, theme; `web/src/shared/*` for the API client, UI primitives, layout and the app theme). Styling uses [shadcn/ui](https://ui.shadcn.com) (new-york, zinc) on Tailwind CSS v4, dark by default. The app is split into path-routed views (`/`, `/share`, `/join`, `/session`, `/history`, `/help`) sharing one page layout; invite links (`#join=…`) open the session view. Typography is self-hosted Inter (UI), Geist (headings) and Geist Mono (IDs, timers, stats), inlined into styles.css, which is why the CSP allows `font-src 'self' data:`. Buttons follow one rule set: four variants (primary, outline, ghost, danger) at a single 36px height. Every color is defined once in `web/src/shared/styles/globals.css` (light on `:root`, dark on `.dark`); components use only Tailwind theme tokens (`bg-card`, `text-muted-foreground`, `bg-brand`, …), and a test fails if a color literal appears elsewhere. Components that inject inline `<style>` (Radix Dialog/Select) are avoided because the server CSP is `style-src 'self'`; dialogs and selects use the native elements with shadcn styling. The server serves the app shell for each view path; its API is unchanged.
+
+```powershell
+cd web
+npm install
+npm run dev        # Vite dev server with /api proxied to http://127.0.0.1:4317 (run `npm start` in the repo root too)
+npm run typecheck && npm run lint && npm test
+npm run build      # writes public/index.html, app.js, styles.css
+```
+
+The server serves a fixed allowlist of three files and a strict CSP, so the build emits exactly those with stable names and no inline styles. **The built files in `public/` are committed**, so `npm start` and Render keep working without installing frontend tooling. Re-run `npm run build` after changing anything in `web/` and commit the result.
+
 ## Implementation and scope
 
 The UI includes session setup, invitation copying, approval, local preview, remote playback, quality presets, full screen, live WebRTC statistics and in-memory session history. There is no remote input/control or unattended access. Audio capture is outside this prototype's scope.
