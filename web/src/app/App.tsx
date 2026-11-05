@@ -16,7 +16,6 @@ import { HistoryView } from './views/HistoryView';
 import { HomeView } from './views/HomeView';
 import { JoinView } from './views/JoinView';
 import { SessionView } from './views/SessionView';
-import { ShareView } from './views/ShareView';
 import type { ViewProps } from './views/shared';
 
 /** How long the bottom-right "link copied" toast shows before the invite popup takes over. */
@@ -24,7 +23,6 @@ const INVITE_POPUP_DELAY_MS = 1800;
 
 const screens: Record<View, ComponentType<ViewProps>> = {
   home: HomeView,
-  share: ShareView,
   join: JoinView,
   session: SessionView,
   history: HistoryView,
@@ -105,7 +103,6 @@ export function App() {
 
   const nav: NavEntry[] = [
     { id: 'home', label: 'Home', icon: 'home', href: hrefFor('home') },
-    { id: 'share', label: 'Share screen', icon: 'screenShare', href: hrefFor('share') },
     { id: 'join', label: 'Join session', icon: 'join', href: hrefFor('join') },
     { id: 'session', label: 'Live session', icon: 'screen', href: hrefFor('session'), live: state.active },
     { id: 'history', label: 'History', icon: 'clock', href: hrefFor('history') },

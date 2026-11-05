@@ -1,17 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 
 /**
- * Path routing with the History API: views live at clean URLs (`/share`, `/join`, …) and the server
+ * Path routing with the History API: views live at clean URLs (`/join`, `/session`, …) and the server
  * answers each of them with the app shell. Invite links keep their secret in the URL fragment
  * (`/#join=<id>:<token>`) so it is never sent to the server; the session engine reads it once, and
  * navigating to the session view replaces it in the address bar.
  */
-export const views = ['home', 'share', 'join', 'session', 'history', 'help'] as const;
+export const views = ['home', 'join', 'session', 'history', 'help'] as const;
 export type View = (typeof views)[number];
 
 export const viewTitles: Record<View, string> = {
   home: 'Home',
-  share: 'Share screen',
   join: 'Join session',
   session: 'Live session',
   history: 'History',
@@ -20,7 +19,7 @@ export const viewTitles: Record<View, string> = {
 
 export const hrefFor = (view: View) => (view === 'home' ? '/' : `/${view}`);
 
-/** Resolves a location to a view. Legacy `#/share` hashes are still understood. */
+/** Resolves a location to a view. Legacy `#/join` hashes are still understood. */
 export function parseLocation(pathname: string, hash = ''): View {
   if (hash.startsWith('#join=')) return 'session';
   const fromHash = hash.startsWith('#/') ? hash.slice(2) : '';
