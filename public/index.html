@@ -1,91 +1,19 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f6f7f9">
   <meta name="description" content="Share a screen, invite a collaborator, and work together with Deskstream. You choose the source and approve every viewer.">
   <title>Workspace · Deskstream</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%23d94b39'/%3E%3Cpath d='M10 13h13v5H15v9h-5zm20 14H17v-5h8V13h5z' fill='white'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/styles.css">
+  <script type="module" crossorigin src="/app.js"></script>
+  <link rel="stylesheet" crossorigin href="/styles.css">
 </head>
 <body>
-  <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
-    <symbol id="i-screen" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></symbol>
-    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
-    <symbol id="i-share" viewBox="0 0 24 24"><path d="M14 4h6v6m0-6-9 9M10 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/></symbol>
-    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
-    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1 .7-1.5 1-1.5 2m0 3h.01"/></symbol>
-    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4 5 7.5 8 9 3-1.5 8-5 8-9V6zM8.5 12l2.5 2.5 4.5-5"/></symbol>
-    <symbol id="i-link" viewBox="0 0 24 24"><path d="m10 13 4-4m-5 6-2 2a4.2 4.2 0 0 1-6-6l4-4a4.2 4.2 0 0 1 6 0m2 2 2-2a4.2 4.2 0 0 1 6 6l-4 4a4.2 4.2 0 0 1-6 0" transform="translate(1 0) scale(.92)"/></symbol>
-    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3"/></symbol>
-    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
-    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
-    <symbol id="i-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7z"/></symbol>
-    <symbol id="i-signal" viewBox="0 0 24 24"><path d="M4 20v-3m5 3v-7m5 7V9m5 11V4"/></symbol>
-    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></symbol>
-    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
-  </svg>
-  <a class="skip-link" href="#main">Skip to workspace</a>
-  <aside class="sidebar" aria-label="Main navigation">
-    <a class="brand" href="/" aria-label="Deskstream home"><span class="brand-mark"><i></i><i></i></span>deskstream<span class="brand-period">.</span></a>
-    <div class="workspace-picker"><span class="workspace-avatar">P</span><div><strong>Personal workspace</strong><small>Your space to collaborate</small></div></div>
-    <div class="nav-label">WORKSPACE</div>
-    <nav>
-      <button class="nav-item selected" id="home" aria-current="page" aria-label="Overview"><svg class="icon"><use href="#i-grid"/></svg><span>Overview</span><span class="nav-indicator"></span></button>
-      <button class="nav-item" id="recent" aria-label="Recent sessions"><svg class="icon"><use href="#i-clock"/></svg><span>Recent sessions</span></button>
-      <button class="nav-item" id="nav-help" aria-label="How it works"><svg class="icon"><use href="#i-help"/></svg><span>How it works</span></button>
-    </nav>
-    <div class="sidebar-bottom"><div class="sidebar-tip"><svg class="icon"><use href="#i-shield"/></svg><strong>Your screen. Your say.</strong><p>Choose what to share and approve who can see it.</p></div><div class="sidebar-signature"><span class="mini-mark">d.</span><span>A little closer, from anywhere.</span></div></div>
-  </aside>
-  <div class="app-shell">
-    <header class="topbar"><div class="breadcrumbs"><span>Workspace</span><svg class="icon"><use href="#i-chevron"/></svg><strong>Overview</strong></div><a class="mobile-brand" href="/">deskstream<span>.</span></a><div class="topbar-actions"><span class="service-status" id="service-status" role="status"><span class="status-dot"></span><span id="service-label">Checking connection</span></span><button id="help" class="icon-button" aria-label="Open help"><svg class="icon"><use href="#i-help"/></svg></button><span class="profile-avatar" aria-label="Personal workspace">P</span></div></header>
-    <main id="main" tabindex="-1">
-      <div class="page-heading"><div><div class="eyebrow"><span></span>YOUR SCREEN-SHARING WORKSPACE</div><h1 id="page-title">Better together.<br><span>Even from a distance.</span></h1><p id="page-description">Share your screen, send a link, and get on the same page.</p></div><div class="page-heading-note"><svg class="icon"><use href="#i-shield"/></svg><span>Always permission-based.<br><strong>Always in your control.</strong></span></div></div>
-      <div id="notice" class="notice" role="alert" hidden><svg class="icon"><use href="#i-help"/></svg><p id="notice-text"></p><button id="dismiss-notice" class="icon-button" aria-label="Dismiss message"><svg class="icon"><use href="#i-close"/></svg></button></div>
-      <section class="connect-grid" aria-label="Start or join a session">
-        <article class="card share-card" id="share-card">
-          <div class="card-heading"><span class="feature-icon coral"><svg class="icon"><use href="#i-screen"/></svg></span><span class="card-step">01 / PRESENT</span><span class="tag">You’re in control</span></div>
-          <h2>Bring your screen.</h2><p class="card-description">Walk someone through your work, one window at a time.</p>
-          <div class="address-block"><span class="field-label">YOUR SESSION</span><div class="address-row"><strong id="address">Ready when you are</strong><span id="address-badge" class="address-badge">NOT SHARING</span></div><p id="share-note">A private invitation is created when you choose a source.</p></div>
-          <button id="share" class="button primary wide"><svg class="icon"><use href="#i-share"/></svg><span id="share-label">Share my screen</span><svg class="icon end-icon"><use href="#i-arrow"/></svg></button>
-          <div class="subactions"><button id="demo" class="text-button"><svg class="icon"><use href="#i-play"/></svg>Try a sample stream</button><button id="open-viewer" class="text-button" disabled>Open viewer<svg class="icon"><use href="#i-share"/></svg></button></div>
-          <div id="invitation-panel" class="invitation-panel" hidden><label class="field-label" for="share-link">SEND THIS INVITATION</label><div class="invitation-field"><input id="share-link" readonly aria-describedby="invitation-hint"><button id="copy" class="button copy-button" disabled><svg class="icon"><use href="#i-copy"/></svg><span id="copy-label">Copy link</span></button></div><p id="invitation-hint">Anyone with this link can request to view. You approve them first.</p></div>
-        </article>
-        <article class="card join-card" id="join-card">
-          <div class="card-heading"><span class="feature-icon lavender"><svg class="icon"><use href="#i-link"/></svg></span><span class="card-step">02 / JOIN</span><span class="tag">View only</span></div>
-          <h2>See their perspective.</h2><p class="card-description">Have an invitation? Your seat is already waiting.</p>
-          <form id="join-form" novalidate><label class="field-label" for="invite">INVITATION LINK</label><div class="input-wrap"><svg class="icon"><use href="#i-link"/></svg><input id="invite" type="text" autocomplete="off" spellcheck="false" placeholder="Paste an invitation link" aria-describedby="invite-hint invite-error"></div><p id="invite-hint" class="input-hint">Paste the full link from your presenter.</p><p id="invite-error" class="field-error" role="alert" hidden></p><button id="connect" class="button secondary wide" type="submit"><span>Join a session</span><svg class="icon end-icon"><use href="#i-arrow"/></svg></button></form>
-          <div class="join-footnote"><svg class="icon"><use href="#i-lock"/></svg>You'll join after the presenter lets you in.</div>
-        </article>
-      </section>
-      <section class="workspace-section" aria-labelledby="workspace-title"><div class="section-heading"><div><span class="section-kicker">THE SHARED SPACE</span><h2 id="workspace-title">Your session, front and center.</h2></div><span class="view-only"><svg class="icon"><use href="#i-shield"/></svg>View-only collaboration</span></div>
-        <div class="session-layout">
-          <div class="session-panel" id="session-panel" data-phase="idle">
-            <div class="session-header"><div class="session-heading"><span class="live-indicator" id="live-indicator"></span><h3 id="session-title">Screen preview</h3><span id="session-badge" class="session-badge">STANDBY</span></div><div class="session-tools"><button id="fullscreen" class="viewer-tool" aria-label="Enter fullscreen" title="Enter fullscreen" disabled><svg class="icon"><use href="#i-expand"/></svg></button></div></div>
-            <div class="session-body"><div class="screen-stage" id="stage"><video id="screen" autoplay playsinline muted aria-label="Shared screen stream" hidden></video><div class="empty-screen" id="empty"><div class="screen-art" aria-hidden="true"><div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div><div class="art-dot dot-one"></div><div class="art-dot dot-two"></div><div class="art-window window-back"><div class="art-window-bar"><i></i><i></i><i></i></div><div class="art-skeleton"><b></b><span></span><span></span></div></div><div class="art-window window-front"><div class="art-window-bar"><i></i><i></i><i></i></div><div class="art-presenter"><svg class="icon"><use href="#i-screen"/></svg><span></span><span></span></div></div><div class="art-pointer"><svg viewBox="0 0 24 24"><path d="M4 2v17l5-5 4 8 4-2-4-8h7z"/></svg><span>You</span></div><div class="art-check"><svg class="icon"><use href="#i-check"/></svg></div></div><h3 id="empty-title">A shared view. A fresh perspective.</h3><p id="empty-description">Your screen will appear here when you start sharing.<br>Choose just a window, a tab, or the whole picture.</p><div class="empty-caption"><span></span><span id="empty-caption">Nothing is being shared</span></div></div><span class="source-label" id="source-label" hidden></span></div>
-            <aside class="chat-tray" aria-label="Session chat">
-              <button id="chat-toggle" class="chat-toggle" aria-expanded="true" aria-controls="chat-content"><span>Session chat <span id="chat-unread" class="chat-unread" hidden></span></span><span id="chat-chevron" aria-hidden="true">−</span></button>
-              <div id="chat-content" class="chat-content">
-                <p id="chat-status" class="chat-status">Chat opens after the presenter approves a viewer.</p>
-                <div id="chat-messages" class="chat-messages" role="log" aria-label="Chat messages" aria-live="polite" aria-relevant="additions" tabindex="0"><p id="chat-empty" class="chat-empty">A place to talk through what’s on screen.<br>Messages stay in this session.</p></div>
-                <form id="chat-form" class="chat-form"><label for="chat-input" class="sr-only">Message your session partner</label><div class="chat-compose"><textarea id="chat-input" rows="2" maxlength="2000" placeholder="Write a message…" aria-describedby="chat-error chat-hint" disabled></textarea><button id="chat-send" type="submit" disabled>Send</button></div><p id="chat-error" class="chat-error" role="alert" hidden></p><span id="chat-hint" class="chat-hint">Enter to send · Shift+Enter for a new line · 2,000 characters max</span></form>
-              </div>
-            </aside></div>
-            <div class="session-footer"><div class="stream-meta" role="status"><span id="connection-dot" class="status-dot"></span><span id="state">No active session</span></div><span id="elapsed" class="elapsed">00:00</span><button id="stop" class="end-button" disabled><span></span>End session</button></div>
-          </div>
-          <aside class="session-details" aria-label="Session information"><div class="details-heading"><svg class="icon"><use href="#i-signal"/></svg><h3>Session details</h3></div><div class="session-workflow" aria-label="Sharing progress"><div class="workflow-step active" id="step-source"><span class="step-marker">1</span><div><strong>Choose your source</strong><p>A screen, window, or browser tab.</p></div></div><div class="workflow-step" id="step-invite"><span class="step-marker">2</span><div><strong>Share your invitation</strong><p>One link brings them here.</p></div></div><div class="workflow-step" id="step-connect"><span class="step-marker">3</span><div><strong>Let them in</strong><p>Approve your viewer to connect.</p></div></div></div><div class="quality-setting"><label for="quality">Stream quality</label><select id="quality"><option value="balanced">Balanced · 1080p / 30 fps</option><option value="motion">Smooth · 720p / 60 fps</option><option value="detail">Detail · 1440p / 30 fps</option></select><p>Quality adapts to your connection.</p></div><div class="telemetry" aria-label="Live stream statistics"><div><span>Resolution</span><strong id="stat-resolution">—</strong></div><div><span>Frame rate</span><strong id="stat-fps">—</strong></div><div><span>Bitrate</span><strong id="stat-bitrate">—</strong></div><div><span>Round trip</span><strong id="stat-latency">—</strong></div></div><span id="metrics" class="sr-only">Ready to connect</span><div class="session-details-note"><svg class="icon"><use href="#i-lock"/></svg><span>Screen viewing only.<br>No access to your keyboard or mouse.</span></div></aside>
-        </div>
-      </section>
-      <section class="history-section" aria-labelledby="history-title" id="history-section"><div class="section-heading"><div><span class="section-kicker">PICK UP WHERE YOU LEFT OFF</span><h2 id="history-title">Recent sessions</h2></div><span class="history-scope">Saved on this browser</span></div><div id="history-list" class="history-list"><span class="history-empty-icon"><svg class="icon"><use href="#i-clock"/></svg></span><div><h3>Your first connection is a good place to start.</h3><p>Completed sessions appear here. Invitation links are never saved.</p></div></div></section>
-      <footer class="page-footer"><span><svg class="icon"><use href="#i-shield"/></svg>Built around your permission.</span><span>One presenter. One viewer. A shared perspective.</span><button id="footer-help" class="text-button">Need a hand?<svg class="icon"><use href="#i-arrow"/></svg></button></footer>
-    </main>
-  </div>
-  <dialog id="approval" aria-labelledby="approval-title" aria-describedby="approval-description"><div class="dialog-top"><span class="feature-icon coral"><svg class="icon"><use href="#i-screen"/></svg></span><span class="eyebrow">INCOMING VIEWER</span></div><h2 id="approval-title">Ready to let them in?</h2><p id="approval-description">Someone opened your invitation and wants to see your selected source. Only accept if you’re expecting them.</p><div class="permission-summary"><span><svg class="icon"><use href="#i-check"/></svg>Can view your shared screen</span><span><svg class="icon"><use href="#i-lock"/></svg>Cannot control your device</span></div><div class="dialog-actions"><button id="reject" class="button secondary" autofocus>Decline</button><button id="approve" class="button primary">Allow viewing<svg class="icon"><use href="#i-arrow"/></svg></button></div><p class="dialog-caption">You can end the session at any time.</p></dialog>
-  <dialog id="help-dialog" aria-labelledby="help-title"><div class="dialog-top"><span class="feature-icon lavender"><svg class="icon"><use href="#i-help"/></svg></span><button id="close-help" class="icon-button" aria-label="Close help"><svg class="icon"><use href="#i-close"/></svg></button></div><h2 id="help-title">A little closer, in three steps.</h2><ol class="help-steps"><li><strong>Choose what to share</strong><p>Use Share my screen to select a tab, window, or display. Sharing starts only after you make a choice.</p></li><li><strong>Send the invitation</strong><p>Copy your link and send it to your viewer. Open viewer lets you test in another tab.</p></li><li><strong>Approve and collaborate</strong><p>Accept the viewer’s request. End session stops the stream for both of you.</p></li></ol><div class="help-note"><strong>Just exploring?</strong><p>Try a sample stream to test the experience with a moving illustration. Your screen stays private.</p></div><p class="help-technical">Present from a desktop browser on HTTPS or localhost. Cross-network connections may need a TURN relay; this installation does not configure one.</p></dialog>
-  <div id="toast" role="status" aria-live="polite"><svg class="icon"><use href="#i-check"/></svg><span id="toast-text"></span></div>
-  <script type="module" src="/app.js"></script>
+  <div id="root"></div>
+  <noscript>
+    <h1>Deskstream</h1>
+    <p>Deskstream needs JavaScript. Once it is enabled, choose Share my screen to present, or paste an invitation link to join a session.</p>
+  </noscript>
 </body>
 </html>

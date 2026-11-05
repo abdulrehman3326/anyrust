@@ -14,6 +14,11 @@ test('invitation permissions, presenter approval, signaling and teardown', async
   assert.equal(page.status, 200);
   assert.match(page.headers.get('content-security-policy'), /frame-ancestors 'none'/);
   assert.match(await page.text(), /Share my screen/);
+  for (const route of ['/share', '/join', '/session', '/history', '/help']) {
+    const shell = await request(route);
+    assert.equal(shell.status, 200);
+    assert.match(await shell.text(), /Share my screen/);
+  }
   const health = await request('/api/health');
   assert.equal(health.status, 200);
   assert.equal(health.headers.get('cache-control'), 'no-store');
