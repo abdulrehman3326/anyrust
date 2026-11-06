@@ -28,7 +28,7 @@ function NavLink({ item, active, onClose }: { item: NavEntry; active: boolean; o
       className={cn(
         buttonVariants({ variant: 'ghost' }),
         'w-full justify-start gap-3 px-3 text-muted-foreground has-[>svg]:px-3',
-        active && 'bg-sidebar-accent text-sidebar-accent-foreground dark:bg-sidebar-accent',
+        active && 'bg-sidebar-accent font-medium text-sidebar-accent-foreground dark:bg-sidebar-accent',
       )}
     >
       <Icon name={item.icon} />
@@ -79,7 +79,7 @@ export function Sidebar({ items, footerItems, activeId, open, onClose }: Sidebar
               <NavLink key={item.id} item={item} active={item.id === activeId} onClose={onClose} />
             ))}
           </nav>
-          <div className="rounded-lg border bg-card p-4 text-sm">
+          <div className="rounded-xl border border-border/80 dark:border-transparent bg-card p-4 text-sm shadow-xs">
             <strong className="flex items-center gap-2 font-medium">
               <Icon name="shield" size={16} className="text-success" />
               Permission-based

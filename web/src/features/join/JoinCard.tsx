@@ -24,6 +24,20 @@ export function JoinCard({ state, onJoin }: JoinCardProps) {
     }
   };
 
+  const handlePaste = async () => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.readText) {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          setValue(text.trim());
+          setError(undefined);
+        }
+      }
+    } catch {
+      // Clipboard read not permitted; user can paste manually.
+    }
+  };
+
   return (
     <Card as="article">
       <CardHeader>
@@ -31,7 +45,7 @@ export function JoinCard({ state, onJoin }: JoinCardProps) {
           <IconChip icon="join" />
           <div className="space-y-1.5">
             <CardTitle>Request access</CardTitle>
-            <CardDescription>Paste the invite link you received from the presenter.</CardDescription>
+            <CardDescription>Paste the invite link you received from the presenter to watch.</CardDescription>
           </div>
         </div>
         <CardAction><Badge tone="outline">Viewer</Badge></CardAction>
@@ -45,7 +59,7 @@ export function JoinCard({ state, onJoin }: JoinCardProps) {
             error={error}
             autoComplete="off"
             spellCheck={false}
-            placeholder="Paste invite link"
+            placeholder="Paste invite link (e.g. http://.../#join=...)"
             className="font-mono text-xs md:text-xs"
             value={state.active && state.role === 'viewer' ? state.joinedLink : value}
             disabled={state.active}
@@ -56,14 +70,22 @@ export function JoinCard({ state, onJoin }: JoinCardProps) {
           />
         </CardContent>
         <CardFooter className="justify-between gap-3 border-t">
-          <span className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap shrink-0">
             <Icon name="lock" size={14} />
-            Encrypted and view-only
+            View-only
           </span>
-          <Button type="submit" variant="primary" disabled={locked || state.service !== 'ready'}>
-            Request access
-            <Icon name="arrow" />
-          </Button>
+          <div className="flex items-center gap-2 shrink-0 flex-nowrap">
+            {!state.active && (
+              <Button type="button" variant="ghost" onClick={() => void handlePaste()} aria-label="Paste from clipboard">
+                <Icon name="copy" />
+                Paste
+              </Button>
+            )}
+            <Button type="submit" variant="primary" disabled={locked || state.service !== 'ready' || !value.trim()}>
+              Request access
+              <Icon name="arrow" />
+            </Button>
+          </div>
         </CardFooter>
       </form>
     </Card>

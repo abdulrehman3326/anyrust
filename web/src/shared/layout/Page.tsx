@@ -17,7 +17,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, eyebrow, actions }: PageHeaderProps) {
   return (
-    <header className="flex flex-col gap-4 border-b pb-8 md:flex-row md:items-end md:justify-between">
+    <header className="flex flex-col gap-4 border-b border-border/80 dark:border-white/[0.06] pb-8 md:flex-row md:items-end md:justify-between">
       <div className="min-w-0 space-y-2">
         {eyebrow && <div className="flex items-center gap-2">{eyebrow}</div>}
         <h1 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">{title}</h1>

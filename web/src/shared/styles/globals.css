@@ -43,7 +43,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: oklch(0.972 0.003 286.375);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
@@ -51,21 +51,26 @@
   --popover-foreground: oklch(0.141 0.005 285.823);
   --primary: oklch(0.21 0.006 285.885);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
+  --secondary: oklch(0.955 0.003 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
+  --muted: oklch(0.955 0.003 286.375);
   --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
+  --accent: oklch(0.955 0.003 286.375);
   --accent-foreground: oklch(0.21 0.006 285.885);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
+  --border: oklch(0.912 0.004 286.32);
+  --input: oklch(0.912 0.004 286.32);
   --ring: oklch(0.705 0.015 286.067);
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: oklch(0.985 0.002 286.375);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent: oklch(0.955 0.003 286.375);
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-border: oklch(0.912 0.004 286.32);
+
+  /* Elevation and shadows (inspired by umais-dev.vercel.app / Apple HIG) */
+  --shadow-card: 0 1px 3px 0 oklch(0 0 0 / 0.04), 0 6px 16px -3px oklch(0 0 0 / 0.08), 0 16px 36px -8px oklch(0 0 0 / 0.12);
+  --shadow-card-hover: 0 2px 6px 0 oklch(0 0 0 / 0.06), 0 10px 24px -4px oklch(0 0 0 / 0.10), 0 24px 48px -10px oklch(0 0 0 / 0.16);
+  --shadow-popover: 0 4px 16px -2px oklch(0 0 0 / 0.08), 0 24px 48px -12px oklch(0 0 0 / 0.16);
 
   /* Deskstream accents: brand red is used sparingly (logo, live, unread, own messages). */
   --brand: oklch(0.577 0.19 31);
@@ -92,11 +97,11 @@
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
+  --background: oklch(0.095 0.003 285.823);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.175 0.005 285.823);
+  --card: oklch(0.18 0.005 285.823);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
+  --popover: oklch(0.20 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.92 0.004 286.32);
   --primary-foreground: oklch(0.21 0.006 285.885);
@@ -110,7 +115,7 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285.938);
-  --sidebar: oklch(0.165 0.005 285.823);
+  --sidebar: oklch(0.115 0.004 285.823);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.274 0.006 286.033);
   --sidebar-accent-foreground: oklch(0.985 0 0);
@@ -122,7 +127,12 @@
   --warning: oklch(0.795 0.155 75);
   --info: oklch(0.707 0.143 254);
 
-  --stage: oklch(0.11 0.004 285.823);
+  --stage: oklch(0.08 0.003 285.823);
+
+  /* Elevation and shadows (dark: refined ambient elevation with micro-glow) */
+  --shadow-card: inset 0 1px 0 0 oklch(1 0 0 / 7%), 0 4px 16px -2px oklch(0 0 0 / 60%), 0 16px 40px -8px oklch(0 0 0 / 80%);
+  --shadow-card-hover: inset 0 1px 0 0 oklch(1 0 0 / 12%), 0 8px 24px -2px oklch(0 0 0 / 70%), 0 24px 52px -10px oklch(0 0 0 / 90%);
+  --shadow-popover: inset 0 1px 0 0 oklch(1 0 0 / 10%), 0 12px 32px -4px oklch(0 0 0 / 80%), 0 36px 68px -12px oklch(0 0 0 / 95%);
 }
 
 @theme inline {
@@ -130,6 +140,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-popover: var(--shadow-popover);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

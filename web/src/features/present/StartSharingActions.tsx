@@ -26,7 +26,7 @@ export function StartSharingActions({ state, onShare, className }: StartSharingA
       </Button>
       <Button variant="outline" disabled={locked} onClick={() => onShare(true)}>
         <Icon name="play" />
-        Use a demo stream
+        Try demo stream
       </Button>
     </div>
   );

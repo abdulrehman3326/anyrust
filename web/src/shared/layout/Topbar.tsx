@@ -26,7 +26,7 @@ interface TopbarProps {
 
 export function Topbar({ section, service, onMenu, actions }: TopbarProps) {
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-8">
+    <header className="sticky top-0 z-10 flex h-14 items-center justify-between gap-3 border-b border-border/70 dark:border-white/[0.06] bg-background/80 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/70 md:px-8">
       <div className="flex min-w-0 items-center gap-2">
         <Button className="-ml-2 lg:hidden" variant="ghost" iconOnly aria-label="Open navigation" onClick={onMenu}>
           <Icon name="menu" />
@@ -39,7 +39,7 @@ export function Topbar({ section, service, onMenu, actions }: TopbarProps) {
       </div>
       <div className="flex items-center gap-2">
         <span
-          className="inline-flex h-7 items-center gap-2 rounded-full border px-3 text-xs text-muted-foreground"
+          className="inline-flex h-7 items-center gap-2 rounded-full border border-border/80 dark:border-white/[0.08] bg-card/60 px-3 text-xs text-muted-foreground shadow-xs"
           data-status={service}
           role="status"
         >
