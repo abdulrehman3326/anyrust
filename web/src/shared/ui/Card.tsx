@@ -13,7 +13,7 @@ export function Card({ as: Tag = 'div', padded = true, className, ...rest }: Car
     <Tag
       data-slot="card"
       className={cn(
-        'flex flex-col gap-6 rounded-xl border border-border/80 bg-card text-card-foreground shadow-card transition-shadow duration-200 hover:shadow-card-hover',
+        'flex flex-col gap-6 rounded-2xl border border-border/80 dark:border-transparent bg-card text-card-foreground shadow-card transition-all duration-200 hover:shadow-card-hover',
         padded && 'py-6',
         className,
       )}
@@ -27,7 +27,7 @@ export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
     <div
       data-slot="card-header"
       className={cn(
-        '@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6',
+        '@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 dark:[.border-b]:border-white/[0.06]',
         className,
       )}
       {...props}
@@ -58,5 +58,5 @@ export function CardContent({ className, ...props }: ComponentProps<'div'>) {
 }
 
 export function CardFooter({ className, ...props }: ComponentProps<'div'>) {
-  return <div data-slot="card-footer" className={cn('flex items-center px-6 [.border-t]:pt-6', className)} {...props} />;
+  return <div data-slot="card-footer" className={cn('flex items-center px-6 [.border-t]:pt-6 dark:[.border-t]:border-white/[0.06]', className)} {...props} />;
 }

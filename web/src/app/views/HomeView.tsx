@@ -132,7 +132,7 @@ export function HomeView({ session, history }: ViewProps) {
         />
         <div className="grid gap-4 md:grid-cols-3">
           {steps.map((step, index) => (
-            <div key={step.title} className="flex flex-col gap-2 rounded-xl border border-border/80 bg-card p-4 shadow-card transition-shadow duration-200 hover:shadow-card-hover">
+            <div key={step.title} className="flex flex-col gap-2 rounded-2xl border border-border/80 dark:border-transparent bg-card p-5 shadow-card transition-all duration-200 hover:shadow-card-hover">
               <div className="flex items-center justify-between">
                 <IconChip icon={step.icon} tone={index === 0 ? 'brand' : 'neutral'} />
                 <span className="font-mono text-xs text-muted-foreground">0{index + 1}</span>

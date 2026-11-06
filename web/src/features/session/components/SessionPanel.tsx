@@ -74,11 +74,11 @@ export function SessionPanel({ state, renderChat, idleActions }: SessionPanelPro
       ref={panelRef}
       aria-label="Screen session"
       className={cn(
-        'flex min-w-0 flex-col overflow-hidden rounded-xl border border-border/80 bg-card text-card-foreground shadow-card',
+        'flex min-w-0 flex-col overflow-hidden rounded-2xl border border-border/80 dark:border-transparent bg-card text-card-foreground shadow-card',
         fullscreen && 'rounded-none border-0',
       )}
     >
-      <div className="flex h-14 items-center justify-between gap-3 border-b px-4">
+      <div className="flex h-14 items-center justify-between gap-3 border-b dark:border-white/[0.06] px-4">
         <div className="flex min-w-0 items-center gap-3">
           {fullscreen && <Badge tone={badge.tone} dot pulse={live}>{badge.label}</Badge>}
           <h3 className="truncate text-sm font-medium">{state.title}</h3>
@@ -134,12 +134,12 @@ export function SessionPanel({ state, renderChat, idleActions }: SessionPanelPro
             </span>
           )}
         </div>
-        <div className={cn('border-t', fullscreen && 'flex border-l border-t-0')}>
+        <div className={cn('border-t dark:border-white/[0.06]', fullscreen && 'flex border-l border-t-0')}>
           {renderChat({ open: chatOpen, fullscreen, onOpenChange: setChatOpen })}
         </div>
       </div>
 
-      <div className="flex h-12 items-center gap-4 border-t px-4">
+      <div className="flex h-12 items-center gap-4 border-t dark:border-white/[0.06] px-4">
         <div className="flex min-w-0 flex-1 items-center gap-2 text-sm text-muted-foreground" role="status">
           <span className={cn('size-2 shrink-0 rounded-full', live ? 'animate-pulse bg-brand' : 'bg-muted-foreground/40')} data-live={live} />
           <span className="truncate">{state.statusText}</span>

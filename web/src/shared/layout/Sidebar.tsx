@@ -79,7 +79,7 @@ export function Sidebar({ items, footerItems, activeId, open, onClose }: Sidebar
               <NavLink key={item.id} item={item} active={item.id === activeId} onClose={onClose} />
             ))}
           </nav>
-          <div className="rounded-lg border border-border/80 bg-card p-4 text-sm shadow-xs">
+          <div className="rounded-xl border border-border/80 dark:border-transparent bg-card p-4 text-sm shadow-xs">
             <strong className="flex items-center gap-2 font-medium">
               <Icon name="shield" size={16} className="text-success" />
               Permission-based
