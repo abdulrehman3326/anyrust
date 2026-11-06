@@ -8,7 +8,7 @@ export function HelpView() {
       <PageHeader
         title="How it works"
         description="Deskstream connects one presenter and one approved viewer over WebRTC. Try the full flow with a demo stream your screen is never captured."
-        actions={<ViewLink to="share" variant="primary">Try the demo stream</ViewLink>}
+        actions={<ViewLink to="session" variant="primary">Try the demo stream</ViewLink>}
       />
       <HelpContent />
     </Page>

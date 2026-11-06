@@ -2,7 +2,7 @@ import { hrefFor, parseLocation } from './router';
 
 describe('router', () => {
   it('maps paths to views', () => {
-    expect(parseLocation('/share')).toBe('share');
+    expect(parseLocation('/join')).toBe('join');
     expect(parseLocation('/history/')).toBe('history');
     expect(parseLocation('/')).toBe('home');
     expect(parseLocation('/nope')).toBe('home');
