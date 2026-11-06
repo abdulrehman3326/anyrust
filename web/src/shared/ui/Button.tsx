@@ -18,12 +18,12 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-primary text-primary-foreground shadow-xs hover:bg-primary/90',
+        primary: 'bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 hover:shadow-sm active:scale-[0.98]',
         outline:
-          'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
-        ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
+          'border border-border/80 bg-card shadow-xs hover:bg-accent hover:text-accent-foreground active:scale-[0.98] dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
+        ghost: 'hover:bg-accent/80 hover:text-accent-foreground active:scale-[0.98] dark:hover:bg-accent/50',
         danger:
-          'bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40',
+          'bg-destructive text-white shadow-xs hover:bg-destructive/90 active:scale-[0.98] focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40',
       },
       iconOnly: { true: 'size-9 px-0 has-[>svg]:px-0', false: '' },
     },

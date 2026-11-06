@@ -74,7 +74,7 @@ export function SessionPanel({ state, renderChat, idleActions }: SessionPanelPro
       ref={panelRef}
       aria-label="Screen session"
       className={cn(
-        'flex min-w-0 flex-col overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm',
+        'flex min-w-0 flex-col overflow-hidden rounded-xl border border-border/80 bg-card text-card-foreground shadow-card',
         fullscreen && 'rounded-none border-0',
       )}
     >

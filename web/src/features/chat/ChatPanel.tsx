@@ -137,7 +137,7 @@ export function ChatPanel({ log, selfRole, ready, open, tray, onOpenChange, onSe
             })}
           </div>
           <form onSubmit={(event) => void submit(event)} className="flex flex-col gap-2">
-            <div className="flex items-end gap-2 rounded-lg border bg-background p-2 transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 [&>div]:min-w-0 [&>div]:flex-1">
+            <div className="flex items-end gap-2 rounded-lg border border-border/80 bg-card p-2 shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/25 [&>div]:min-w-0 [&>div]:flex-1">
               <TextArea
                 ref={inputRef}
                 label="Message"

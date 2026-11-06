@@ -43,7 +43,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: oklch(0.972 0.003 286.375);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
@@ -51,21 +51,26 @@
   --popover-foreground: oklch(0.141 0.005 285.823);
   --primary: oklch(0.21 0.006 285.885);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
+  --secondary: oklch(0.955 0.003 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
+  --muted: oklch(0.955 0.003 286.375);
   --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
+  --accent: oklch(0.955 0.003 286.375);
   --accent-foreground: oklch(0.21 0.006 285.885);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
+  --border: oklch(0.912 0.004 286.32);
+  --input: oklch(0.912 0.004 286.32);
   --ring: oklch(0.705 0.015 286.067);
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: oklch(0.985 0.002 286.375);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent: oklch(0.955 0.003 286.375);
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-border: oklch(0.912 0.004 286.32);
+
+  /* Elevation and shadows (inspired by umais-dev.vercel.app / Apple HIG) */
+  --shadow-card: 0 2px 8px 0 oklch(0 0 0 / 0.05), 0 12px 32px -8px oklch(0 0 0 / 0.12);
+  --shadow-card-hover: 0 4px 14px 0 oklch(0 0 0 / 0.07), 0 24px 48px -12px oklch(0 0 0 / 0.18);
+  --shadow-popover: 0 6px 20px 0 oklch(0 0 0 / 0.08), 0 32px 64px -14px oklch(0 0 0 / 0.22);
 
   /* Deskstream accents: brand red is used sparingly (logo, live, unread, own messages). */
   --brand: oklch(0.577 0.19 31);
@@ -123,6 +128,11 @@
   --info: oklch(0.707 0.143 254);
 
   --stage: oklch(0.11 0.004 285.823);
+
+  /* Elevation and shadows (dark: subtle hairline highlight + deep ambient lift) */
+  --shadow-card: 0 0 0 1px oklch(1 0 0 / 8%), 0 10px 28px -12px oklch(0 0 0 / 70%);
+  --shadow-card-hover: 0 0 0 1px oklch(1 0 0 / 14%), 0 20px 40px -12px oklch(0 0 0 / 90%);
+  --shadow-popover: 0 0 0 1px oklch(1 0 0 / 12%), 0 28px 56px -12px oklch(0 0 0 / 95%);
 }
 
 @theme inline {
@@ -130,6 +140,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-popover: var(--shadow-popover);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

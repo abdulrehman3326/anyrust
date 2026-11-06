@@ -109,7 +109,7 @@ export function Select<T extends string>({ id, value, options, onValueChange, di
         onClick={() => (open ? setOpen(false) : show())}
         onKeyDown={onKeyDown}
         className={cn(
-          'flex h-9 w-full min-w-0 cursor-pointer items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 text-left text-sm shadow-xs outline-none transition-[color,box-shadow] hover:bg-accent/40 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-expanded:border-ring',
+          'flex h-9 w-full min-w-0 cursor-pointer items-center justify-between gap-2 rounded-md border border-input bg-card px-3 text-left text-sm shadow-xs outline-none transition-[color,box-shadow] hover:bg-accent/40 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25 aria-invalid:border-destructive aria-expanded:border-ring',
           className,
         )}
       >
@@ -121,7 +121,7 @@ export function Select<T extends string>({ id, value, options, onValueChange, di
           id={listId}
           role="listbox"
           tabIndex={-1}
-          className="absolute inset-x-0 top-full z-30 mt-1.5 max-h-64 overflow-auto rounded-lg border border-border/60 bg-popover/70 p-1 text-popover-foreground shadow-xl ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 animate-in fade-in-0 zoom-in-95 slide-in-from-top-1"
+          className="absolute inset-x-0 top-full z-30 mt-1.5 max-h-64 overflow-auto rounded-lg border border-border/60 bg-popover/90 p-1 text-popover-foreground shadow-popover ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 animate-in fade-in-0 zoom-in-95 slide-in-from-top-1"
         >
           {options.map((option, index) => (
             <li

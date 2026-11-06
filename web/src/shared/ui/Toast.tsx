@@ -70,7 +70,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             return (
               <div
                 key={item.id}
-                className="pointer-events-auto flex items-start gap-3 rounded-lg border border-border/60 bg-popover/85 py-3 pl-4 pr-2 text-sm text-popover-foreground shadow-lg ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 animate-in fade-in-0 slide-in-from-bottom-2 sm:slide-in-from-right-4 sm:slide-in-from-bottom-0"
+                className="pointer-events-auto flex items-start gap-3 rounded-lg border border-border/60 bg-popover/85 py-3 pl-4 pr-2 text-sm text-popover-foreground shadow-popover ring-1 ring-foreground/5 backdrop-blur-xl backdrop-saturate-150 animate-in fade-in-0 slide-in-from-bottom-2 sm:slide-in-from-right-4 sm:slide-in-from-bottom-0"
               >
                 <Icon name={icon} size={16} className={cn('mt-0.5 shrink-0', className)} />
                 <span className="min-w-0 flex-1 leading-5">{item.message}</span>

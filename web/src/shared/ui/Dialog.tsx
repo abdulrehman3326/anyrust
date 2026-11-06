@@ -30,7 +30,7 @@ export function Dialog({ open, title, onClose, headerAccessory, children, footer
     <dialog
       ref={ref}
       data-slot="dialog-content"
-      className="m-auto h-fit max-h-[calc(100%-2rem)] w-[calc(100%-2rem)] max-w-lg flex-col gap-4 rounded-lg border bg-background p-6 text-foreground shadow-lg backdrop:bg-black/60 backdrop:backdrop-blur-[2px] open:flex open:animate-in open:fade-in-0 open:zoom-in-95"
+      className="m-auto h-fit max-h-[calc(100%-2rem)] w-[calc(100%-2rem)] max-w-lg flex-col gap-5 rounded-2xl border border-border/80 bg-card p-6 text-foreground shadow-popover backdrop:bg-black/40 backdrop:backdrop-blur-sm open:flex open:animate-in open:fade-in-0 open:zoom-in-95"
       aria-labelledby={titleId}
       onCancel={(event) => {
         event.preventDefault();

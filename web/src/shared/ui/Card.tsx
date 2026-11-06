@@ -13,7 +13,7 @@ export function Card({ as: Tag = 'div', padded = true, className, ...rest }: Car
     <Tag
       data-slot="card"
       className={cn(
-        'flex flex-col gap-6 rounded-xl border bg-card text-card-foreground shadow-sm',
+        'flex flex-col gap-6 rounded-xl border border-border/80 bg-card text-card-foreground shadow-card transition-shadow duration-200 hover:shadow-card-hover',
         padded && 'py-6',
         className,
       )}
