@@ -2,6 +2,14 @@
   "name": "deskstream-local-prototype",
   "private": true,
   "type": "module",
-  "scripts": {"start": "node server.mjs", "test": "node --test server.test.mjs"},
-  "engines": {"node": ">=22"}
+  "scripts": {
+    "start": "node server.ts",
+    "test": "node --test server.test.ts",
+    "typecheck": "tsc -p ."
+  },
+  "engines": {"node": ">=22.18"},
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  }
 }

@@ -6,3 +6,10 @@ node_modules/
 preview.png
 .DS_Store
 Thumbs.db
+
+# Playwright output
+test-results/
+playwright-report/
+
+# Local device-ID key (production uses DEVICE_ID_KEY)
+.deskstream-device-key

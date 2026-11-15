@@ -1,0 +1,23 @@
+{
+  // Type-checks the Node server, its tests and the shared protocol.
+  // Node runs these .ts files directly (type stripping), so only erasable syntax is allowed.
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["server.ts", "server.test.ts", "iceConfig.ts", "routes.ts", "devices.ts", "log.ts", "protocol/**/*.ts"]
+}
