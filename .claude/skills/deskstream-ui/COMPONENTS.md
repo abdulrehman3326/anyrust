@@ -9,12 +9,14 @@ Everything below is exported from `@/shared/ui` or `@/shared/layout`. Read the c
   - `outline` (default): every secondary action.
   - `ghost`: icon-only and toolbar or navigation controls.
   - `danger`: destructive actions (End session).
+  - `stage`: controls placed over the video stage (e.g. "Turn on sound"). The stage is dark in both themes and shows arbitrary content, so these use the `stage` tokens with a translucent fill and blur.
   Actions take a leading `<Icon>`. A trailing arrow marks navigation, via `ViewLink` in `app/views/shared.tsx`. `iconOnly` buttons need `aria-label`. Use `asChild` to style an `<a>`. Need a different look? Add a variant to `buttonVariants`, so every button stays in one place.
 - **`Card`** with `CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, `CardFooter`. `padded={false}` for edge-to-edge lists or custom rows. `as="section" | "article" | "aside"` for semantics.
 - **`Badge`** with `tone`: `neutral | outline | brand | success | warning | danger | info`, optional `dot` / `pulse` for live status.
 - **`IconChip`**: the 40px square icon tile at the start of card headers and list rows. Tones: `neutral`, `brand`, `success`.
 - **`Notice`**: inline alert with `tone`: `info | warning | danger`.
 - **Fields**: `TextField`, `TextArea`, `SelectField` wrap `Label` + control + hint/error with ids and `aria-describedby` wired. Prefer them to the raw `Input` / `Textarea` / `NativeSelect`.
+- **`Switch`**: an on/off setting row (`label`, optional `description`, switch on the right). A native checkbox with `role="switch"`, so use `checked`/`onChange` like any checkbox. "On" is `primary`, never brand. Use it for permissions and settings, not for actions (those are buttons).
 - **`Dialog`**: shadcn styling on native `<dialog>` (focus trap and inert background for free, CSP-safe).
 - **`useToast()`** returns `show(message)`. Short, plain-language confirmations.
 - **`Icon name="…"`**: lucide icons behind app-level names, stroke 1.75. To add one, import it in `shared/ui/Icon.tsx` and give it a semantic key (`share`, not `externalLink`).

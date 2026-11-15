@@ -7,7 +7,8 @@ web/src/
   app/          Composition root. main.tsx (providers), App.tsx (shell + state wiring),
                 router.ts (path routes), views/ (one file per screen)
   features/     One folder per capability, each with a public index.ts:
-                session, present, join, approval, chat, history, help, theme
+                session, present, join, approval, chat, history, help, theme,
+                addressbook, and the leaf features device, files, pointer
   shared/       No feature knowledge. ui/ (primitives), layout/ (Page, Sidebar, Topbar),
                 theme/ (ThemeProvider, applyTheme), styles/globals.css (tokens),
                 api/ (HTTP/SSE client), lib/ (cn, format)
@@ -17,7 +18,7 @@ web/src/
 ## Layer rules
 
 - **`shared/`** knows nothing about Deskstream features. Code moves here when a second feature needs it.
-- **`features/<name>/`** exposes everything through `index.ts`; other code imports `@/features/<name>` only (ESLint-enforced). Larger features split internally into `components/`, `hooks/`, `lib/`, `model/` (see `features/session`). A feature may import another feature's *types* through its index (e.g. `SessionState`); runtime coupling between features goes through `App.tsx` instead.
+- **`features/<name>/`** exposes everything through `index.ts`; other code imports `@/features/<name>` only (ESLint-enforced). Larger features split internally into `components/`, `hooks/`, `lib/`, `model/` (see `features/session`). A feature may import another feature's *types* through its index (e.g. `SessionState`); runtime coupling between features goes through `App.tsx` instead. **Exception, leaf features:** `device` (device secret, ID parsing), `files` (transfer model, hashing, `FileTransferPanel`) and `pointer` (geometry, `PointerOverlay`, pop-out) import nothing but `shared/`, so other features may import them at runtime (`session` and `addressbook` do). A leaf feature must never import another feature; if it needs to, it is no longer a leaf, so wire it through `App.tsx` instead.
 - **`app/App.tsx`** wires features together with callbacks. Example: `useSession` receives `onChatMessage`, `onChatReset`, `onSessionRecorded`, so the session engine never imports chat or history. Follow this pattern for new cross-feature behavior.
 - **`app/views/*View.tsx`** compose a screen from feature components inside `Page` + `PageHeader`. Every view takes `ViewProps` (`session`, `chat`, `history`). Shared view helpers (`ViewLink`, `StepsCard`, `ActiveSessionCard`) live in `app/views/shared.tsx`.
 - Use the `@/` alias (→ `web/src`) for cross-folder imports; use `import type` for types (ESLint-enforced). No `any`.
@@ -32,7 +33,7 @@ To add a view: add its name to `views` and `viewTitles` in `router.ts`, create `
 
 - `vite.config.ts` builds into `../public` with fixed names (`app.js`, `styles.css`, single chunk, inlined assets). The server's allowlist and CSP depend on this; see "Hard constraints" in SKILL.md.
 - In dev, Vite proxies `/api` to `http://127.0.0.1:4317`; run `npm start` at the repo root alongside `npm run dev` in `web/`.
-- The server (`server.mjs`) and its API are outside the UI's scope. The client talks to it only through `shared/api`.
+- The server (`server.ts`) and its API are outside the UI's scope. The client talks to it only through `shared/api`, whose wire types are re-exported from the shared `protocol/signaling.ts`; change message shapes there, never by redeclaring them in `web/`.
 
 ## Tests
 
