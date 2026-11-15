@@ -137,7 +137,7 @@ export function App() {
       </div>
 
       <InviteDialog open={inviteOpen && !state.approvalOpen} copied={inviteCopied} state={state} onClose={() => setInviteOpen(false)} />
-      <ApprovalDialog open={state.approvalOpen} onApprove={() => void session.approveViewer()} onDecline={() => void session.rejectViewer()} />
+      <ApprovalDialog open={state.approvalOpen} onApprove={(permissions) => void session.approveViewer(permissions)} onDecline={() => void session.rejectViewer()} />
     </>
   );
 }

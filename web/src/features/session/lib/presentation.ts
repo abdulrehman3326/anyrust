@@ -78,8 +78,8 @@ const hostSteps = [
 ] as const;
 
 const viewerSteps = [
-  ['Invite opened', 'Your access request has been sent.'],
-  ['Approval pending', 'The presenter is reviewing your request.'],
+  ['Send a request', 'Use an invite link or a 9-digit device ID.'],
+  ['Wait for approval', 'The presenter reviews your request.'],
   ['View the screen', 'Live, view-only stream.'],
 ] as const;
 
@@ -87,7 +87,8 @@ export function workflow(role: Role, active: boolean, phase: SessionPhase): Work
   const live = phase === 'live';
   const approvalStage = phase === 'request' || phase === 'connecting' || live || phase === 'interrupted';
   const current = !active ? 0 : approvalStage ? 2 : 1;
-  return (role === 'viewer' && active ? viewerSteps : hostSteps).map(([title, description], index) => ({
+  // The engine resets `role` to 'host' whenever no session is active, so 'viewer' also drives the Join page preview.
+  return (role === 'viewer' ? viewerSteps : hostSteps).map(([title, description], index) => ({
     title,
     description,
     state: index < current || live ? 'complete' : index === current ? 'active' : 'upcoming',

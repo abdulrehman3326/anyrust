@@ -1,18 +1,28 @@
-import { Button, Dialog, Icon, IconChip } from '@/shared/ui';
+import { useEffect, useState } from 'react';
+import { DEFAULT_VIEWER_PERMISSIONS } from '@/shared/api';
+import type { ViewerPermissions } from '@/shared/api';
+import { Button, Dialog, Icon, IconChip, Switch } from '@/shared/ui';
 
 interface ApprovalDialogProps {
   open: boolean;
-  onApprove: () => void;
+  onApprove: (permissions: ViewerPermissions) => void;
   onDecline: () => void;
 }
 
 const terms = [
   { icon: 'eye', text: 'Can view your shared screen', tone: 'text-success' },
   { icon: 'lock', text: 'No control of your mouse or keyboard', tone: 'text-muted-foreground' },
-  { icon: 'close', text: 'You can end the session at any time', tone: 'text-muted-foreground' },
+  { icon: 'privacy', text: 'You can pause the stream or end the session at any time', tone: 'text-muted-foreground' },
 ] as const;
 
 export function ApprovalDialog({ open, onApprove, onDecline }: ApprovalDialogProps) {
+  const [permissions, setPermissions] = useState<ViewerPermissions>({ ...DEFAULT_VIEWER_PERMISSIONS });
+
+  // Every request starts from the defaults, never from the previous viewer's choices.
+  useEffect(() => {
+    if (open) setPermissions({ ...DEFAULT_VIEWER_PERMISSIONS });
+  }, [open]);
+
   return (
     <Dialog
       open={open}
@@ -27,7 +37,7 @@ export function ApprovalDialog({ open, onApprove, onDecline }: ApprovalDialogPro
       footer={
         <>
           <Button variant="outline" autoFocus onClick={onDecline}>Decline</Button>
-          <Button variant="primary" onClick={onApprove}>
+          <Button variant="primary" onClick={() => onApprove(permissions)}>
             <Icon name="check" />
             Approve access
           </Button>
@@ -45,6 +55,27 @@ export function ApprovalDialog({ open, onApprove, onDecline }: ApprovalDialogPro
           </li>
         ))}
       </ul>
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Viewer permissions</legend>
+        <Switch
+          label="Allow chat"
+          description="The viewer can send you messages. You can change this during the session."
+          checked={permissions.chat}
+          onChange={(event) => setPermissions((current) => ({ ...current, chat: event.target.checked }))}
+        />
+        <Switch
+          label="Allow file transfer"
+          description="The viewer can offer you files. You still accept each one. You can always send files to them."
+          checked={permissions.files}
+          onChange={(event) => setPermissions((current) => ({ ...current, files: event.target.checked }))}
+        />
+        <Switch
+          label="Allow pointer"
+          description="The viewer can point at your screen; you see their pointer and clicks on your preview."
+          checked={permissions.pointer}
+          onChange={(event) => setPermissions((current) => ({ ...current, pointer: event.target.checked }))}
+        />
+      </fieldset>
     </Dialog>
   );
 }

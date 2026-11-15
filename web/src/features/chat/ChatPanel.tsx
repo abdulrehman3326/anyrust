@@ -11,6 +11,8 @@ interface ChatPanelProps {
   selfRole: Role;
   /** Chat is available once the presenter has approved a viewer. */
   ready: boolean;
+  /** Why chat is unavailable, shown while `ready` is false. */
+  unavailableReason?: string | undefined;
   open: boolean;
   /** Fullscreen shows chat as a right-hand tray. */
   tray: boolean;
@@ -20,7 +22,7 @@ interface ChatPanelProps {
 
 const senderLabel = (role: Role, selfRole: Role) => (role === selfRole ? 'You' : role === 'host' ? 'Presenter' : 'Viewer');
 
-export function ChatPanel({ log, selfRole, ready, open, tray, onOpenChange, onSend }: ChatPanelProps) {
+export function ChatPanel({ log, selfRole, ready, unavailableReason = 'Available once a viewer is approved.', open, tray, onOpenChange, onSend }: ChatPanelProps) {
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
@@ -83,7 +85,7 @@ export function ChatPanel({ log, selfRole, ready, open, tray, onOpenChange, onSe
         <span className="inline-flex items-center gap-2">
           <Icon name="chat" size={16} className="text-muted-foreground" />
           Messages
-          {!open && !ready && <span className="hidden text-xs font-normal text-muted-foreground sm:inline">· Available once a viewer is approved</span>}
+          {!open && !ready && <span className="hidden text-xs font-normal text-muted-foreground sm:inline">· {unavailableReason}</span>}
           {!open && unread > 0 && (
             <span
               className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-xs font-semibold text-brand-foreground"
@@ -99,7 +101,7 @@ export function ChatPanel({ log, selfRole, ready, open, tray, onOpenChange, onSe
       {open && (
         <div id={contentId} className="flex min-h-0 flex-1 flex-col gap-3 px-4 pb-4">
           <p className="text-xs text-muted-foreground">
-            {ready ? 'Private to this session · Cleared when either participant leaves' : 'Available once a viewer is approved.'}
+            {ready ? 'Private to this session · Cleared when either participant leaves' : unavailableReason}
           </p>
           <div
             ref={logRef}

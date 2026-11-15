@@ -11,7 +11,12 @@ describe('workflow', () => {
     expect(workflow('host', true, 'live').map((step) => step.state)).toEqual(['complete', 'complete', 'complete']);
   });
   it('uses viewer wording for viewers', () => {
-    expect(workflow('viewer', true, 'waiting')[0]?.title).toBe('Invite opened');
+    expect(workflow('viewer', true, 'waiting')[0]?.title).toBe('Send a request');
+  });
+  it('previews the viewer steps without claiming a request was sent', () => {
+    const steps = workflow('viewer', false, 'idle');
+    expect(steps.map((step) => step.state)).toEqual(['active', 'upcoming', 'upcoming']);
+    expect(steps[0]?.description).toMatch(/device ID/);
   });
 });
 

@@ -15,10 +15,22 @@ export function InvitePanel({ state }: { state: SessionState }) {
         <CardAction><Badge tone="success" dot>Active</Badge></CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/30 px-4 py-3">
-          <span className="text-xs text-muted-foreground">Session ID</span>
-          <strong className="font-mono text-sm font-medium tabular-nums">{state.roomId ? formatRoomId(state.roomId) : '—'}</strong>
-        </div>
+        {state.deviceId ? (
+          <div className="flex flex-col gap-1.5 rounded-lg border bg-muted/30 px-4 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs text-muted-foreground">Your device ID</span>
+              <strong className="font-mono text-sm font-medium tabular-nums" aria-label={`Your device ID ${formatRoomId(state.deviceId)}`}>
+                {formatRoomId(state.deviceId)}
+              </strong>
+            </div>
+            <p className="text-xs text-muted-foreground">Permanent for this browser. Viewers can save it and request access whenever you’re sharing.</p>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/30 px-4 py-3">
+            <span className="text-xs text-muted-foreground">Session ID</span>
+            <strong className="font-mono text-sm font-medium tabular-nums">{state.roomId ? formatRoomId(state.roomId) : '—'}</strong>
+          </div>
+        )}
         <div className="grid gap-2">
           <Label htmlFor="invite-link">Invite link</Label>
           <div className="flex gap-2">

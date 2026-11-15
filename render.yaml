@@ -5,9 +5,22 @@ services:
     plan: free
     buildCommand: npm install --omit=dev --no-audit --no-fund
     startCommand: npm start
-    healthCheckPath: /
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
         value: 24.22.1
       - key: HOST
         value: 0.0.0.0
+      # STUN/TURN (see README "STUN/TURN and connection recovery"). Set values in the Render dashboard.
+      - key: STUN_URLS
+        sync: false
+      - key: TURN_URLS
+        sync: false
+      - key: TURN_SECRET
+        sync: false
+      # Device IDs are derived with this key; Render generates it once so IDs survive redeploys.
+      - key: DEVICE_ID_KEY
+        generateValue: true
+      # Render terminates TLS in front of the app, so rate limits use X-Forwarded-For.
+      - key: TRUST_PROXY
+        value: "1"

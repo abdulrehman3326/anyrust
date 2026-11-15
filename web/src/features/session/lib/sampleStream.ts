@@ -49,5 +49,62 @@ export function createSampleStream(): SampleStream {
   };
   draw(begin);
 
-  return { stream: canvas.captureStream(30), stop: () => cancelAnimationFrame(handle) };
+  const video = canvas.captureStream(30);
+  const chime = createChime();
+  const stream = new MediaStream([...video.getVideoTracks(), ...(chime ? [chime.track] : [])]);
+  return {
+    stream,
+    stop: () => {
+      cancelAnimationFrame(handle);
+      chime?.stop();
+    },
+  };
+}
+
+const CHIME_INTERVAL_MS = 2000;
+
+/**
+ * Stands in for "computer audio" in the demo: a quiet two-note chime every two seconds, so
+ * audio can be tested end to end without capturing anything. Null where Web Audio is missing.
+ */
+function createChime(): { track: MediaStreamTrack; stop: () => void } | null {
+  if (typeof AudioContext === 'undefined') return null;
+  let context: AudioContext;
+  try {
+    context = new AudioContext();
+  } catch {
+    return null;
+  }
+  const destination = context.createMediaStreamDestination();
+  const track = destination.stream.getAudioTracks()[0];
+  if (!track) {
+    void context.close();
+    return null;
+  }
+  void context.resume().catch(() => undefined);
+  const ring = () => {
+    const start = context.currentTime;
+    [660, 880].forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const at = start + index * 0.18;
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0, at);
+      gain.gain.linearRampToValueAtTime(0.08, at + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.5);
+      oscillator.connect(gain).connect(destination);
+      oscillator.start(at);
+      oscillator.stop(at + 0.55);
+    });
+  };
+  ring();
+  const timer = setInterval(ring, CHIME_INTERVAL_MS);
+  return {
+    track,
+    stop: () => {
+      clearInterval(timer);
+      track.stop();
+      void context.close().catch(() => undefined);
+    },
+  };
 }

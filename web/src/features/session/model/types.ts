@@ -1,4 +1,5 @@
-import type { ChatMessage, Role } from '@/shared/api';
+import type { ChatMessage, Role, ViewerPermissions } from '@/shared/api';
+import type { FileTransfer } from '@/features/files';
 
 export type SessionPhase =
   | 'idle'
@@ -25,6 +26,8 @@ export interface StreamStats {
   fps: number | null;
   bitrateMbps: number | null;
   latencyMs: number | null;
+  /** Video packets lost over the last stats interval, in percent. */
+  packetLossPercent: number | null;
 }
 
 export type ServiceStatus = 'checking' | 'ready' | 'offline';
@@ -56,6 +59,27 @@ export interface SessionState {
   /** True when a room exists (either presenting or viewing). */
   active: boolean;
   chatReady: boolean;
+  /** True while the peer-to-peer control channel is open (see lib/controlProtocol.ts). */
+  controlReady: boolean;
+  /**
+   * Presenter: what the approved viewer may do. Viewer: what the presenter allows this viewer.
+   * The server enforces it; this copy drives the UI.
+   */
+  viewerPermissions: ViewerPermissions;
+  /**
+   * Privacy pause. Presenter: their outgoing video is blanked. Viewer: the presenter has paused.
+   * While paused the presenter sends black frames, so nothing on screen reaches the viewer.
+   */
+  paused: boolean;
+  /**
+   * Computer audio. Presenter: null when the screen picker supplied none, otherwise whether it
+   * is being sent. Viewer: what the presenter reports (null until known or when there is none).
+   */
+  systemAudio: boolean | null;
+  /** Presenter: their microphone is live. Viewer: the presenter's microphone is live. */
+  micOn: boolean;
+  /** File transfers in either direction, newest first (see FileTransferController). */
+  transfers: FileTransfer[];
   approvalOpen: boolean;
   service: ServiceStatus;
   canCapture: boolean;
@@ -66,6 +90,11 @@ export interface SessionState {
   metricsText: string;
   notice: string;
   roomId: string | null;
+  /**
+   * Permanent device ID. Presenter: this device's ID (viewers can save it). Viewer: the device
+   * connected to, when joined by device ID rather than an invite link.
+   */
+  deviceId: string | null;
   inviteLink: string;
   joinedLink: string;
   quality: QualityKey;

@@ -45,7 +45,7 @@ export function JoinCard({ state, onJoin }: JoinCardProps) {
           <IconChip icon="join" />
           <div className="space-y-1.5">
             <CardTitle>Request access</CardTitle>
-            <CardDescription>Paste the invite link you received from the presenter to watch.</CardDescription>
+            <CardDescription>Paste the presenter’s invite link, or enter their 9-digit device ID.</CardDescription>
           </div>
         </div>
         <CardAction><Badge tone="outline">Viewer</Badge></CardAction>
@@ -54,12 +54,12 @@ export function JoinCard({ state, onJoin }: JoinCardProps) {
       <form onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-6">
         <CardContent>
           <TextField
-            label="Invite link"
+            label="Invite link or device ID"
             hint="The presenter approves each request before you connect."
             error={error}
             autoComplete="off"
             spellCheck={false}
-            placeholder="Paste invite link (e.g. http://.../#join=...)"
+            placeholder="Invite link or device ID (e.g. 123 456 789)"
             className="font-mono text-xs md:text-xs"
             value={state.active && state.role === 'viewer' ? state.joinedLink : value}
             disabled={state.active}
@@ -69,7 +69,7 @@ export function JoinCard({ state, onJoin }: JoinCardProps) {
             }}
           />
         </CardContent>
-        <CardFooter className="justify-between gap-3 border-t">
+        <CardFooter className="flex-wrap justify-between gap-3 border-t">
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap shrink-0">
             <Icon name="lock" size={14} />
             View-only

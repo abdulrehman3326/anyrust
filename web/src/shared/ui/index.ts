@@ -12,5 +12,7 @@ export { Input, Textarea } from './Input';
 export { Select } from './Select';
 export type { SelectOption } from './Select';
 export { TextField, TextArea, SelectField } from './Field';
+export { Switch } from './Switch';
+export type { SwitchProps } from './Switch';
 export { Dialog } from './Dialog';
 export { ToastProvider, useToast, useDismissToast } from './Toast';

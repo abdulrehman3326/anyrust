@@ -1,0 +1,18 @@
+# TURN relay for Deskstream. Run on a small public VPS:  docker compose up -d
+# Fill in .env first (copy .env.example). See README.md in this folder.
+services:
+  coturn:
+    image: coturn/coturn:4.6
+    restart: unless-stopped
+    # Host networking: TURN needs the real public IP and a large UDP port range, which Docker's
+    # port publishing handles poorly.
+    network_mode: host
+    volumes:
+      - ./turnserver.conf:/etc/coturn/turnserver.conf:ro
+      - ${TURN_CERT_DIR:?Set TURN_CERT_DIR in .env}:/etc/coturn/certs:ro
+    command:
+      - -c
+      - /etc/coturn/turnserver.conf
+      - --static-auth-secret=${TURN_SECRET:?Set TURN_SECRET in .env}
+      - --realm=${TURN_REALM:?Set TURN_REALM in .env}
+      - --external-ip=${EXTERNAL_IP:?Set EXTERNAL_IP in .env}

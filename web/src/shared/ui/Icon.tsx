@@ -1,7 +1,7 @@
 import {
   Activity, ArrowRight, Eye, House, LogIn, UserCheck, Check, ChevronDown, ChevronRight, CircleCheck, CircleHelp, Clock, Copy, ExternalLink,
   LayoutGrid, Link, Lock, Maximize2, Menu, MessageCircle, Minimize2, Monitor, Moon, Play, ScreenShare,
-  SendHorizontal, ShieldCheck, Sun, TriangleAlert, X, Info,
+  SendHorizontal, ShieldCheck, Sun, TriangleAlert, X, Info, Volume2, MousePointer2, FileText, Camera, PictureInPicture2, EyeOff, ZoomIn, VolumeX, Mic, MicOff, FileUp, FileDown, Download, BookUser, Pencil, Trash2, Plus, SquareArrowOutUpRight,
 } from 'lucide-react';
 import type { LucideIcon, LucideProps } from 'lucide-react';
 
@@ -39,6 +39,24 @@ const icons = {
   monitor: Monitor,
   alert: TriangleAlert,
   info: Info,
+  audio: Volume2,
+  pointer: MousePointer2,
+  file: FileText,
+  screenshot: Camera,
+  pictureInPicture: PictureInPicture2,
+  privacy: EyeOff,
+  actualSize: ZoomIn,
+  audioOff: VolumeX,
+  mic: Mic,
+  micOff: MicOff,
+  fileOutgoing: FileUp,
+  fileIncoming: FileDown,
+  save: Download,
+  contacts: BookUser,
+  edit: Pencil,
+  remove: Trash2,
+  add: Plus,
+  popOut: SquareArrowOutUpRight,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof icons;

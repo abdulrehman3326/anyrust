@@ -10,6 +10,8 @@ export default defineConfig({
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   server: {
     proxy: { '/api': { target: 'http://127.0.0.1:4317', changeOrigin: false } },
+    // The shared wire contract lives in ../protocol, outside this Vite root.
+    fs: { allow: [fileURLToPath(new URL('..', import.meta.url))] },
   },
   build: {
     outDir: '../public',
@@ -32,5 +34,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    // Playwright specs in e2e/ are not Vitest tests.
+    include: ['src/**/*.test.{ts,tsx}'],
   },
 });
