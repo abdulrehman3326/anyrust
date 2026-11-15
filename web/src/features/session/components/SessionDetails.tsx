@@ -1,4 +1,5 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Icon, SelectField } from '@/shared/ui';
+import type { ViewerPermissions } from '@/shared/api';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Icon, SelectField, Switch } from '@/shared/ui';
 import { cn } from '@/shared/lib';
 import { qualityKeys, qualityPresets } from '../lib/qualityPresets';
 import { workflow } from '../lib/presentation';
@@ -7,6 +8,7 @@ import type { QualityKey, SessionState } from '../model/types';
 interface SessionDetailsProps {
   state: SessionState;
   onQualityChange: (quality: QualityKey) => void;
+  onPermissionsChange: (permissions: ViewerPermissions) => void;
 }
 
 const markerStyles = {
@@ -15,14 +17,16 @@ const markerStyles = {
   complete: 'border-success/30 bg-success/10 text-success',
 } as const;
 
-export function SessionDetails({ state, onQualityChange }: SessionDetailsProps) {
+export function SessionDetails({ state, onQualityChange, onPermissionsChange }: SessionDetailsProps) {
   const steps = workflow(state.role, state.active, state.phase);
   const { stats } = state;
+  const managingViewer = state.active && state.role === 'host' && state.chatReady;
   const rows: Array<[string, string]> = [
     ['Resolution', stats.resolution ?? '—'],
     ['Frame rate', stats.fps == null ? '—' : `${stats.fps} fps`],
     ['Bitrate', stats.bitrateMbps == null ? '—' : `${stats.bitrateMbps.toFixed(1)} Mbps`],
     ['Round trip', stats.latencyMs == null ? '—' : `${stats.latencyMs} ms`],
+    ['Packet loss', stats.packetLossPercent == null ? '—' : `${stats.packetLossPercent.toFixed(1)} %`],
   ];
 
   return (
@@ -54,6 +58,30 @@ export function SessionDetails({ state, onQualityChange }: SessionDetailsProps) 
             </li>
           ))}
         </ol>
+
+        {managingViewer && (
+          <fieldset className="flex flex-col gap-3 border-t pt-6">
+            <legend className="sr-only">Viewer permissions</legend>
+            <Switch
+              label="Viewer can chat"
+              description="Turn off to stop the viewer sending messages. You can still post."
+              checked={state.viewerPermissions.chat}
+              onChange={(event) => onPermissionsChange({ ...state.viewerPermissions, chat: event.target.checked })}
+            />
+            <Switch
+              label="Viewer can send files"
+              description="You accept each file before it transfers. Turning this off stops a file in progress."
+              checked={state.viewerPermissions.files}
+              onChange={(event) => onPermissionsChange({ ...state.viewerPermissions, files: event.target.checked })}
+            />
+            <Switch
+              label="Viewer can point"
+              description="Shows the viewer’s pointer and clicks on your preview."
+              checked={state.viewerPermissions.pointer}
+              onChange={(event) => onPermissionsChange({ ...state.viewerPermissions, pointer: event.target.checked })}
+            />
+          </fieldset>
+        )}
 
         <div className="border-t pt-6">
           <SelectField

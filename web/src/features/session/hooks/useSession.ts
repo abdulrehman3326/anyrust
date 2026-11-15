@@ -7,8 +7,19 @@ export interface SessionApi {
   /** Resolves with the invite link once the hosted session is live, or `null` if it did not start. */
   share: (useSample: boolean) => Promise<string | null>;
   join: SessionEngine['join'];
-  approveViewer: () => Promise<void>;
+  approveViewer: SessionEngine['approveViewer'];
   rejectViewer: () => Promise<void>;
+  setViewerPermissions: SessionEngine['setViewerPermissions'];
+  setPrivacyPause: SessionEngine['setPrivacyPause'];
+  setSystemAudio: SessionEngine['setSystemAudio'];
+  setMicrophone: SessionEngine['setMicrophone'];
+  sendFile: SessionEngine['sendFile'];
+  acceptFile: SessionEngine['acceptFile'];
+  declineFile: SessionEngine['declineFile'];
+  cancelFile: SessionEngine['cancelFile'];
+  dismissFile: SessionEngine['dismissFile'];
+  onControl: SessionEngine['onControl'];
+  sendControl: SessionEngine['sendControl'];
   endSession: () => Promise<void>;
   sendChat: (text: string) => Promise<void>;
   setQuality: SessionEngine['setQuality'];
@@ -46,6 +57,17 @@ export function useSession(callbacks: SessionCallbacks): SessionApi {
     join: engine.join,
     approveViewer: engine.approveViewer,
     rejectViewer: engine.rejectViewer,
+    setViewerPermissions: engine.setViewerPermissions,
+    setPrivacyPause: engine.setPrivacyPause,
+    setSystemAudio: engine.setSystemAudio,
+    setMicrophone: engine.setMicrophone,
+    sendFile: engine.sendFile,
+    acceptFile: engine.acceptFile,
+    declineFile: engine.declineFile,
+    cancelFile: engine.cancelFile,
+    dismissFile: engine.dismissFile,
+    onControl: engine.onControl,
+    sendControl: engine.sendControl,
     endSession: () => engine.endSession(),
     sendChat: engine.sendChat,
     setQuality: engine.setQuality,

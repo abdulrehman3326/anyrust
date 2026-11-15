@@ -1,4 +1,6 @@
+import { SaveDevicePrompt } from '@/features/addressbook';
 import { ChatPanel } from '@/features/chat';
+import { FileTransferPanel } from '@/features/files';
 import { InvitePanel, StartSharingActions } from '@/features/present';
 import { SessionDetails, SessionPanel, phaseBadge } from '@/features/session';
 import { Page, PageHeader } from '@/shared/layout';
@@ -10,6 +12,7 @@ export function SessionView({ session, chat }: ViewProps) {
   const { state } = session;
   const badge = phaseBadge[state.phase];
   const hosting = state.active && state.role === 'host';
+  const chatMuted = state.role === 'viewer' && state.chatReady && !state.viewerPermissions.chat;
 
   return (
     <Page>
@@ -35,9 +38,16 @@ export function SessionView({ session, chat }: ViewProps) {
         }
       />
 
+      {state.active && state.role === 'viewer' && state.deviceId && <SaveDevicePrompt deviceId={state.deviceId} />}
+
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <SessionPanel
           state={state}
+          onPrivacyPauseChange={session.setPrivacyPause}
+          onSystemAudioChange={session.setSystemAudio}
+          onMicrophoneChange={(enabled) => void session.setMicrophone(enabled)}
+          onControl={session.onControl}
+          sendControl={session.sendControl}
           idleActions={
             <StartSharingActions
               state={state}
@@ -49,7 +59,8 @@ export function SessionView({ session, chat }: ViewProps) {
             <ChatPanel
               log={chat}
               selfRole={state.role}
-              ready={state.chatReady && state.service === 'ready' && !state.ending}
+              ready={state.chatReady && state.service === 'ready' && !state.ending && !chatMuted}
+              unavailableReason={chatMuted ? 'The presenter turned off chat for this session.' : undefined}
               open={open}
               tray={fullscreen}
               onOpenChange={onOpenChange}
@@ -59,7 +70,22 @@ export function SessionView({ session, chat }: ViewProps) {
         />
         <div className="flex flex-col gap-6">
           {hosting && <InvitePanel state={state} />}
-          <SessionDetails state={state} onQualityChange={session.setQuality} />
+          {state.active && state.chatReady && (
+            <FileTransferPanel
+              transfers={state.transfers}
+              canSend={state.controlReady && (hosting || state.viewerPermissions.files)}
+              unavailableReason={
+                !state.controlReady ? 'Files can be sent once the connection is live.' : 'The presenter hasn’t allowed you to send files. You can still receive them.'
+              }
+              peerLabel={hosting ? 'the viewer' : 'the presenter'}
+              onSend={(file) => void session.sendFile(file)}
+              onAccept={session.acceptFile}
+              onDecline={session.declineFile}
+              onCancel={session.cancelFile}
+              onDismiss={session.dismissFile}
+            />
+          )}
+          <SessionDetails state={state} onQualityChange={session.setQuality} onPermissionsChange={(permissions) => void session.setViewerPermissions(permissions)} />
         </div>
       </div>
     </Page>
