@@ -10,6 +10,7 @@ import { cn } from '../lib';
  * - `outline`: every secondary action.
  * - `ghost`: icon-only and toolbar/navigation controls only.
  * - `danger`: destructive actions only (End session).
+ * - `stage`: controls drawn over the video stage, which is dark in both themes and can show any content.
  * Every button is the same height (h-9 / 36px), matching inputs and selects.
  * Actions take a leading icon; a trailing arrow is reserved for navigation.
  */
@@ -24,6 +25,8 @@ export const buttonVariants = cva(
         ghost: 'hover:bg-accent/80 hover:text-accent-foreground active:scale-[0.98] dark:hover:bg-accent/50',
         danger:
           'bg-destructive text-white shadow-xs hover:bg-destructive/90 active:scale-[0.98] focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40',
+        stage:
+          'border border-stage-foreground/15 bg-stage/80 text-stage-foreground shadow-sm backdrop-blur hover:bg-stage/95 active:scale-[0.98]',
       },
       iconOnly: { true: 'size-9 px-0 has-[>svg]:px-0', false: '' },
     },
@@ -31,7 +34,7 @@ export const buttonVariants = cva(
   },
 );
 
-export type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'danger';
+export type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'danger' | 'stage';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
